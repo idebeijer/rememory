@@ -31,7 +31,7 @@
   "complete": "Končano. Obnovljenih datotek: {0}.",
   "error": "Napaka: {0}",
   "paste_btn": "Prilepite del ali vnesite obnovitvene besede",
-  "paste_placeholder": "Prilepite besedilo dela ali vnesite obnovitvene besede ...",
+  "paste_placeholder": "Prilepite besedilo dela ali vnesite obnovitvene besede ...\nŠumniki niso potrebni.",
   "paste_submit": "Dodaj del",
   "your_share": "Vaš del",
   "contact_list": "Kontaktirajte prijatelje",

@@ -31,7 +31,7 @@
   "complete": "Fertig. {0} Datei(en) wiederhergestellt.",
   "error": "Fehler: {0}",
   "paste_btn": "Teil einfügen oder Wiederherstellungswörter eingeben",
-  "paste_placeholder": "Teil-Text einfügen oder Wiederherstellungswörter eingeben...",
+  "paste_placeholder": "Teil-Text einfügen oder Wiederherstellungswörter eingeben...\nUmlaute gehen auch als ue, oe, ae.",
   "paste_submit": "Teil hinzufügen",
   "your_share": "Dein Teil",
   "contact_list": "Die anderen kontaktieren",

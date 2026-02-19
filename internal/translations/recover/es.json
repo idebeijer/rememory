@@ -31,7 +31,7 @@
   "complete": "Listo. {0} archivo(s) recuperado(s).",
   "error": "Error: {0}",
   "paste_btn": "Pegar una parte o escribir palabras clave",
-  "paste_placeholder": "Pega el texto de la parte o escribe tus palabras de recuperación...",
+  "paste_placeholder": "Pega el texto de la parte o escribe tus palabras de recuperación...\nNo es necesario escribir los acentos.",
   "paste_submit": "Agregar parte",
   "your_share": "Tu parte",
   "contact_list": "Contactar a los demás",
