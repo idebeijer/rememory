@@ -281,9 +281,15 @@ test.describe('Browser Recovery Tool', () => {
     // Add a share from a different project to trigger decryption failure at threshold.
     await recovery.addShares(mismatchedBobDir);
 
+    // Wait for decryption attempt and error to appear
+    await page.waitForTimeout(500);
+
     const retryBtn = page.locator('.toast .toast-action[data-action="retry"]');
     await expect(retryBtn).toBeVisible();
     await retryBtn.click();
+
+    // Wait for UI to update after clearing non-holder shares
+    await page.waitForTimeout(500);
 
     // Holder's own pre-loaded share should remain after retry.
     await recovery.expectShareCount(1);
