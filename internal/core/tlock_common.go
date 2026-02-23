@@ -21,10 +21,10 @@ const (
 
 // DrandEndpoints lists the public drand HTTP API relays, tried in order.
 var DrandEndpoints = []string{
+	"https://drand.cloudflare.com",
 	"https://api.drand.sh",
 	"https://api2.drand.sh",
 	"https://api3.drand.sh",
-	"https://drand.cloudflare.com",
 }
 
 // RoundForTime returns the drand quicknet round number that will be emitted

@@ -32,9 +32,10 @@ async function encryptForDate(plaintext: Uint8Array, targetDate: Date): Promise<
   round: number;
   unlockDate: Date;
 }> {
-  const round = roundForTime(targetDate);
+  const tlock = (window as any).rememoryTlock;
+  const round = tlock.roundForTime(targetDate);
   const ciphertext = await encrypt(plaintext, round);
-  const unlockDate = timeForRound(round);
+  const unlockDate = tlock.timeForRound(round);
   return { ciphertext, round, unlockDate };
 }
 

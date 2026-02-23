@@ -10,7 +10,7 @@
   "step2_drop": "recover.html oder MANIFEST.age hierher ziehen oder auswählen",
   "step2_hint": "Verwende eine recover.html aus dem Paket eines Freundes oder die MANIFEST.age-Datei",
   "step3_title": "Dateien wiederherstellen",
-  "decrypt_btn": "Entsperren & Wiederherstellen",
+  "decrypt_btn": "Entsperren und Wiederherstellen",
   "download_btn": "Archiv herunterladen",
   "no_manifest": "Noch kein Archiv geladen",
   "need_help": "Brauchst du Hilfe?",
@@ -89,8 +89,8 @@
   "tlock_in_one_minute": "in etwa einer Minute",
   "tlock_decrypting": "Zeitsperre wird aufgehoben...",
   "tlock_waiting_title": "Zeitsperre aktiv",
-  "tlock_waiting_message": "Öffnet am {0}. Einfach warten oder später wiederkommen.",
-  "tlock_waiting_message_relative": "Öffnet {0}. Einfach warten.",
+  "tlock_waiting_message": "Öffnet am {0}. Warte hier, oder komm später wieder.",
+  "tlock_waiting_message_relative": "Öffnet {0}. Gleich soweit.",
   "tlock_learn_more": "Was ist das?",
   "tlock_no_support": "Dieses Archiv ist zeitgesperrt. Verwende die recover.html aus deinem Paket, um es zu öffnen."
 }

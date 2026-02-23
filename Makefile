@@ -55,7 +55,7 @@ test-e2e-headed: build
 test-tlock: build
 	REMEMORY_TEST_TLOCK=1 go test -v -run TestTlock ./...
 	@if [ ! -d node_modules ]; then echo "Run 'npm install' first"; exit 1; fi
-	REMEMORY_TEST_TLOCK=1 REMEMORY_BIN=./$(BINARY) npx playwright test e2e/tlock.spec.ts
+	REMEMORY_TEST_TLOCK=1 REMEMORY_BIN=./$(BINARY) npx playwright test
 
 # Clean rebuild + all tests (unit + e2e + tlock)
 full: clean build test test-e2e test-tlock
