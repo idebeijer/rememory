@@ -3,9 +3,8 @@ package serve
 import (
 	"fmt"
 	"net/http"
-	"strings"
 
-	"github.com/eljojo/rememory/internal/core"
+	"github.com/eljojo/rememory/internal/html"
 )
 
 // Config holds the configuration for the server.
@@ -24,7 +23,6 @@ type Server struct {
 	maxManifestSize int
 	noTlock         bool
 	version         string
-	githubURL       string
 	mux             *http.ServeMux
 }
 
@@ -35,19 +33,13 @@ func New(cfg Config) (*Server, error) {
 		return nil, fmt.Errorf("initializing store: %w", err)
 	}
 
-	var githubURL string
-	if strings.HasPrefix(cfg.Version, "v") {
-		githubURL = fmt.Sprintf("%s/releases/tag/%s", core.GitHubRepo, cfg.Version)
-	} else {
-		githubURL = core.GitHubRepo + "/releases/latest"
-	}
+	html.SetVersion(cfg.Version)
 
 	s := &Server{
 		store:           store,
 		maxManifestSize: cfg.MaxManifestSize,
 		noTlock:         cfg.NoTlock,
 		version:         cfg.Version,
-		githubURL:       githubURL,
 		mux:             http.NewServeMux(),
 	}
 

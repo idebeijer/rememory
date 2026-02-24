@@ -8,9 +8,7 @@ import (
 )
 
 // GenerateIndexHTML creates the landing page HTML with embedded CSS.
-// version is the rememory version string.
-// githubURL is the URL to download CLI binaries.
-func GenerateIndexHTML(version, githubURL string) string {
+func GenerateIndexHTML() string {
 	html := indexHTMLTemplate
 
 	// Embed styles
@@ -26,10 +24,10 @@ func GenerateIndexHTML(version, githubURL string) string {
 	html = strings.Replace(html, "{{DOCS_LANGS}}", DocsLanguagesJS(), 1)
 
 	// Replace version and GitHub URLs
-	html = strings.Replace(html, "{{VERSION}}", version, -1)
+	html = strings.Replace(html, "{{VERSION}}", pkgVersion, -1)
 	html = strings.Replace(html, "{{GITHUB_REPO}}", core.GitHubRepo, -1)
 	html = strings.Replace(html, "{{GITHUB_PAGES}}", core.GitHubPages, -1)
-	html = strings.Replace(html, "{{GITHUB_URL}}", githubURL, -1)
+	html = strings.Replace(html, "{{GITHUB_URL}}", githubURL(), -1)
 
 	return html
 }

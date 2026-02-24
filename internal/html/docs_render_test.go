@@ -161,7 +161,7 @@ func TestRenderTOC(t *testing.T) {
 }
 
 func TestGenerateDocsHTMLEnglish(t *testing.T) {
-	html := GenerateDocsHTML("v1.0.0", "https://example.com/download", "en")
+	html := GenerateDocsHTML("en")
 
 	// Should be valid HTML
 	if !strings.Contains(html, "<!DOCTYPE html>") {
@@ -195,7 +195,7 @@ func TestGenerateDocsHTMLEnglish(t *testing.T) {
 }
 
 func TestGenerateDocsHTMLSpanish(t *testing.T) {
-	html := GenerateDocsHTML("v1.0.0", "https://example.com/download", "es")
+	html := GenerateDocsHTML("es")
 
 	if !strings.Contains(html, `<html lang="es">`) {
 		t.Error("should have lang=es")
@@ -210,7 +210,7 @@ func TestGenerateDocsHTMLSpanish(t *testing.T) {
 }
 
 func TestGenerateDocsHTMLFallback(t *testing.T) {
-	html := GenerateDocsHTML("v1.0.0", "https://example.com/download", "xx")
+	html := GenerateDocsHTML("xx")
 
 	// Should fall back to English
 	if !strings.Contains(html, `<html lang="en">`) {

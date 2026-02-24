@@ -66,11 +66,10 @@ func runBundle(cmd *cobra.Command, args []string) error {
 	noEmbedManifest, _ := cmd.Flags().GetBool("no-embed-manifest")
 
 	cfg := bundle.Config{
-		Version:          version,
-		GitHubReleaseURL: fmt.Sprintf("%s/releases/tag/%s", core.GitHubRepo, version),
-		RecoveryURL:      recoveryURL,
-		NoEmbedManifest:  noEmbedManifest,
-		TlockEnabled:     p.Sealed.TlockEnabled,
+		Version:         version,
+		RecoveryURL:     recoveryURL,
+		NoEmbedManifest: noEmbedManifest,
+		TlockEnabled:    p.Sealed.TlockEnabled,
 	}
 
 	if err := bundle.GenerateAll(p, cfg); err != nil {

@@ -33,7 +33,6 @@ export interface BundleFromArchiveConfig {
   friends: FriendInput[];
   archiveData: Uint8Array;
   version: string;
-  githubURL: string;
   anonymous?: boolean;
   defaultLanguage?: string;
   tlockRound?: number;
@@ -208,7 +207,6 @@ declare global {
     // Embedded constants
     WASM_BINARY?: string;
     VERSION?: string;
-    GITHUB_URL?: string;
 
     // Localized README filenames (embedded in recover.html)
     README_NAMES?: string[];

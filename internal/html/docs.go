@@ -79,10 +79,8 @@ func renderDocsLangPicker(currentLang string) string {
 }
 
 // GenerateDocsHTML creates the documentation page HTML from Markdown content.
-// version is the rememory version string.
-// githubURL is the URL to download CLI binaries.
 // lang is the language code (e.g. "en", "es"). Falls back to "en" if not found.
-func GenerateDocsHTML(version, githubURL, lang string) string {
+func GenerateDocsHTML(lang string) string {
 	if lang == "" {
 		lang = "en"
 	}
@@ -142,10 +140,10 @@ func GenerateDocsHTML(version, githubURL, lang string) string {
 	result = strings.Replace(result, "{{LANG_PICKER}}", renderDocsLangPicker(lang), 1)
 
 	// Replace version and GitHub URLs
-	result = strings.Replace(result, "{{VERSION}}", version, -1)
+	result = strings.Replace(result, "{{VERSION}}", pkgVersion, -1)
 	result = strings.Replace(result, "{{GITHUB_REPO}}", core.GitHubRepo, -1)
 	result = strings.Replace(result, "{{GITHUB_PAGES}}", core.GitHubPages, -1)
-	result = strings.Replace(result, "{{GITHUB_URL}}", githubURL, -1)
+	result = strings.Replace(result, "{{GITHUB_URL}}", githubURL(), -1)
 
 	return result
 }

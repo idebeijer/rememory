@@ -50,7 +50,6 @@ type CreateBundlesFromArchiveConfig struct {
 	Friends         []FriendInput
 	ArchiveData     []byte
 	Version         string
-	GitHubURL       string
 	Anonymous       bool
 	DefaultLanguage string
 	TlockRound      uint64
@@ -64,7 +63,6 @@ type bundleGenConfig struct {
 	Threshold       int
 	Friends         []FriendInput
 	Version         string
-	GitHubURL       string
 	Anonymous       bool
 	DefaultLanguage string
 	TlockEnabled    bool
@@ -133,7 +131,6 @@ func createBundlesFromArchive(config CreateBundlesFromArchiveConfig) ([]BundleOu
 		Threshold:       config.Threshold,
 		Friends:         config.Friends,
 		Version:         config.Version,
-		GitHubURL:       config.GitHubURL,
 		Anonymous:       config.Anonymous,
 		DefaultLanguage: config.DefaultLanguage,
 		TlockEnabled:    tlockEnabled,
@@ -148,6 +145,11 @@ func createBundlesFromArchive(config CreateBundlesFromArchiveConfig) ([]BundleOu
 // bundleFromManifest generates bundles for all friends given the final
 // encrypted manifest data and the raw passphrase bytes for Shamir splitting.
 func bundleFromManifest(manifestData, raw []byte, config bundleGenConfig) ([]BundleOutput, error) {
+	html.SetVersion(config.Version)
+
+	// Derive GitHub release URL from version for README/PDF
+	githubReleaseURL := fmt.Sprintf("%s/releases/tag/%s", core.GitHubRepo, config.Version)
+
 	manifestChecksum := core.HashBytes(manifestData)
 
 	n := len(config.Friends)
@@ -227,7 +229,7 @@ func bundleFromManifest(manifestData, raw []byte, config bundleGenConfig) ([]Bun
 			personalization.ManifestB64 = base64.StdEncoding.EncodeToString(manifestData)
 		}
 
-		recoverHTML := html.GenerateRecoverHTML(config.Version, config.GitHubURL, personalization)
+		recoverHTML := html.GenerateRecoverHTML(personalization)
 		recoverChecksum := core.HashString(recoverHTML)
 
 		readmeData := bundle.ReadmeData{
@@ -238,7 +240,7 @@ func bundleFromManifest(manifestData, raw []byte, config bundleGenConfig) ([]Bun
 			Threshold:        k,
 			Total:            n,
 			Version:          config.Version,
-			GitHubReleaseURL: config.GitHubURL,
+			GitHubReleaseURL: githubReleaseURL,
 			ManifestChecksum: manifestChecksum,
 			RecoverChecksum:  recoverChecksum,
 			Created:          now,
@@ -256,7 +258,7 @@ func bundleFromManifest(manifestData, raw []byte, config bundleGenConfig) ([]Bun
 			Threshold:        k,
 			Total:            n,
 			Version:          config.Version,
-			GitHubReleaseURL: config.GitHubURL,
+			GitHubReleaseURL: githubReleaseURL,
 			ManifestChecksum: manifestChecksum,
 			RecoverChecksum:  recoverChecksum,
 			Created:          now,
@@ -490,7 +492,6 @@ func createBundlesFromArchiveJS(this js.Value, args []js.Value) any {
 		ProjectName: configJS.Get("projectName").String(),
 		Threshold:   configJS.Get("threshold").Int(),
 		Version:     configJS.Get("version").String(),
-		GitHubURL:   configJS.Get("githubURL").String(),
 		Anonymous:   configJS.Get("anonymous").Bool(),
 	}
 	if defLang := configJS.Get("defaultLanguage"); !defLang.IsUndefined() && !defLang.IsNull() {

@@ -5,8 +5,6 @@ import (
 	"compress/gzip"
 	"encoding/base64"
 	"encoding/json"
-	"fmt"
-	"os"
 	"strings"
 
 	"github.com/eljojo/rememory/internal/core"
@@ -99,10 +97,8 @@ type RecoverHTMLOptions struct {
 
 // GenerateRecoverHTML creates the complete recover.html with all assets embedded.
 // Uses native JavaScript crypto (no WASM required).
-// version is the rememory version string.
-// githubURL is the URL to download CLI binaries.
 // personalization can be nil for a generic recover.html, or provided to personalize for a specific friend.
-func GenerateRecoverHTML(version, githubURL string, personalization *PersonalizationData, opts ...RecoverHTMLOptions) string {
+func GenerateRecoverHTML(personalization *PersonalizationData, opts ...RecoverHTMLOptions) string {
 	html := recoverHTMLTemplate
 
 	// Embed translations
@@ -156,10 +152,9 @@ func GenerateRecoverHTML(version, githubURL string, personalization *Personaliza
 	if len(opts) > 0 {
 		noTlock = opts[0].NoTlock
 	}
-	// If personalization requires tlock, always include it regardless of noTlock
+	// NoTlock + TlockEnabled is a programming error — no valid code path should produce this.
 	if noTlock && personalization != nil && personalization.TlockEnabled {
-		fmt.Fprintf(os.Stderr, "Warning: --no-timelock ignored for tlock-enabled bundle\n")
-		noTlock = false
+		panic("html: NoTlock and TlockEnabled are mutually exclusive — this is a programming error")
 	}
 	includeTlock := !noTlock && (personalization == nil || personalization.TlockEnabled)
 
@@ -188,10 +183,10 @@ func GenerateRecoverHTML(version, githubURL string, personalization *Personaliza
 	html = strings.Replace(html, "{{CSP_CONNECT_SRC}}", cspConnectSrc, 1)
 
 	// Replace version and GitHub URLs
-	html = strings.Replace(html, "{{VERSION}}", version, -1)
+	html = strings.Replace(html, "{{VERSION}}", pkgVersion, -1)
 	html = strings.Replace(html, "{{GITHUB_REPO}}", core.GitHubRepo, -1)
 	html = strings.Replace(html, "{{GITHUB_PAGES}}", core.GitHubPages, -1)
-	html = strings.Replace(html, "{{GITHUB_URL}}", githubURL, -1)
+	html = strings.Replace(html, "{{GITHUB_URL}}", githubURL(), -1)
 
 	// Embed personalization data as JSON (or null if not provided)
 	var personalizationJSON string

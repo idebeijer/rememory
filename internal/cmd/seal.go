@@ -298,11 +298,10 @@ func sealProject(p *project.Project, recoveryURL string, noEmbedManifest bool, t
 	fmt.Printf("Generating bundles for %d friends...\n", len(p.Friends))
 
 	cfg := bundle.Config{
-		Version:          version,
-		GitHubReleaseURL: fmt.Sprintf("%s/releases/tag/%s", core.GitHubRepo, version),
-		RecoveryURL:      recoveryURL,
-		NoEmbedManifest:  noEmbedManifest,
-		TlockEnabled:     tlockEnabled,
+		Version:         version,
+		RecoveryURL:     recoveryURL,
+		NoEmbedManifest: noEmbedManifest,
+		TlockEnabled:    tlockEnabled,
 	}
 
 	if err := bundle.GenerateAll(p, cfg); err != nil {

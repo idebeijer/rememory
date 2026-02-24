@@ -1010,7 +1010,6 @@ declare const __SELFHOSTED__: boolean;
         friends: friends,
         archiveData: archiveData,
         version: window.VERSION || 'dev',
-        githubURL: window.GITHUB_URL || 'https://github.com/eljojo/rememory',
         anonymous: state.anonymous,
         defaultLanguage: currentLang || 'en',
         tlockRound: tlockRound,

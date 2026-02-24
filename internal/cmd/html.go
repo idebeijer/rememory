@@ -4,9 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 
-	"github.com/eljojo/rememory/internal/core"
 	"github.com/eljojo/rememory/internal/html"
 	"github.com/spf13/cobra"
 )
@@ -49,29 +47,24 @@ func init() {
 func runHTML(cmd *cobra.Command, args []string) error {
 	subcommand := args[0]
 
+	html.SetVersion(version)
+
 	var content string
-	// Use specific release URL if version is a tag, otherwise use latest
-	var githubURL string
-	if strings.HasPrefix(version, "v") {
-		githubURL = fmt.Sprintf("%s/releases/tag/%s", core.GitHubRepo, version)
-	} else {
-		githubURL = core.GitHubRepo + "/releases/latest"
-	}
 
 	switch subcommand {
 	case "index":
 		// Generate index.html (landing page)
-		content = html.GenerateIndexHTML(version, githubURL)
+		content = html.GenerateIndexHTML()
 
 	case "docs":
 		// Generate docs.html (documentation page)
-		content = html.GenerateDocsHTML(version, githubURL, htmlLang)
+		content = html.GenerateDocsHTML(htmlLang)
 
 	case "recover":
 		// Generate generic recover.html (without personalization)
 		// Uses native JavaScript crypto (no WASM)
 		noTlock, _ := cmd.Flags().GetBool("no-timelock")
-		content = html.GenerateRecoverHTML(version, githubURL, nil, html.RecoverHTMLOptions{NoTlock: noTlock})
+		content = html.GenerateRecoverHTML(nil, html.RecoverHTMLOptions{NoTlock: noTlock})
 
 	case "create":
 		// Generate maker.html (bundle creation tool)
@@ -81,10 +74,10 @@ func runHTML(cmd *cobra.Command, args []string) error {
 		if len(createWASM) == 0 {
 			return fmt.Errorf("create.wasm not embedded - rebuild with 'make build'")
 		}
-		content = html.GenerateMakerHTML(createWASM, version, githubURL, html.MakerHTMLOptions{})
+		content = html.GenerateMakerHTML(createWASM, html.MakerHTMLOptions{})
 
 	case "site":
-		return runHTMLSite(cmd, githubURL)
+		return runHTMLSite(cmd)
 
 	default:
 		return fmt.Errorf("unknown subcommand: %s (use 'index', 'create', 'docs', 'recover', or 'site')", subcommand)
@@ -104,7 +97,7 @@ func runHTML(cmd *cobra.Command, args []string) error {
 }
 
 // runHTMLSite generates all HTML files into a directory.
-func runHTMLSite(cmd *cobra.Command, githubURL string) error {
+func runHTMLSite(cmd *cobra.Command) error {
 	dir := htmlOutputFile
 	if dir == "" {
 		dir = "dist"
@@ -128,16 +121,16 @@ func runHTMLSite(cmd *cobra.Command, githubURL string) error {
 	}
 
 	files := []file{
-		{"index.html", html.GenerateIndexHTML(version, githubURL)},
-		{"maker.html", html.GenerateMakerHTML(createWASM, version, githubURL, html.MakerHTMLOptions{})},
-		{"docs.html", html.GenerateDocsHTML(version, githubURL, "en")},
-		{"recover.html", html.GenerateRecoverHTML(version, githubURL, nil, html.RecoverHTMLOptions{NoTlock: noTlock})},
+		{"index.html", html.GenerateIndexHTML()},
+		{"maker.html", html.GenerateMakerHTML(createWASM, html.MakerHTMLOptions{})},
+		{"docs.html", html.GenerateDocsHTML("en")},
+		{"recover.html", html.GenerateRecoverHTML(nil, html.RecoverHTMLOptions{NoTlock: noTlock})},
 	}
 
 	// Add translated docs
 	for _, lang := range html.DocsLanguages() {
 		name := fmt.Sprintf("docs.%s.html", lang)
-		files = append(files, file{name, html.GenerateDocsHTML(version, githubURL, lang)})
+		files = append(files, file{name, html.GenerateDocsHTML(lang)})
 	}
 
 	for _, f := range files {

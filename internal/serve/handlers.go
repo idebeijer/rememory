@@ -38,7 +38,7 @@ func (s *Server) handleCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	content := html.GenerateMakerHTML(createWASM, s.version, s.githubURL, html.MakerHTMLOptions{
+	content := html.GenerateMakerHTML(createWASM, html.MakerHTMLOptions{
 		Selfhosted: true,
 		SelfhostedConfig: &html.SelfhostedConfig{
 			MaxManifestSize: s.maxManifestSize,
@@ -61,7 +61,7 @@ func (s *Server) handleRecover(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	content := html.GenerateRecoverHTML(s.version, s.githubURL, nil, html.RecoverHTMLOptions{
+	content := html.GenerateRecoverHTML(nil, html.RecoverHTMLOptions{
 		NoTlock:    s.noTlock,
 		Selfhosted: true,
 		SelfhostedConfig: &html.SelfhostedConfig{
@@ -75,13 +75,13 @@ func (s *Server) handleRecover(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) handleAbout(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	content := html.GenerateIndexHTML(s.version, s.githubURL)
+	content := html.GenerateIndexHTML()
 	fmt.Fprint(w, content)
 }
 
 func (s *Server) handleDocs(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	content := html.GenerateDocsHTML(s.version, s.githubURL, "en")
+	content := html.GenerateDocsHTML("en")
 	fmt.Fprint(w, content)
 }
 

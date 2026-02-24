@@ -415,8 +415,7 @@ func TestBundleGeneration(t *testing.T) {
 
 	// Generate bundles (recover.html uses native JavaScript crypto, no WASM)
 	cfg := bundle.Config{
-		Version:          "v1.0.0-test",
-		GitHubReleaseURL: "https://github.com/eljojo/rememory/releases/tag/v1.0.0-test",
+		Version: "v1.0.0-test",
 	}
 
 	if err := bundle.GenerateAll(p, cfg); err != nil {
@@ -631,8 +630,8 @@ func TestPagesGeneration(t *testing.T) {
 	}
 
 	// Generate static-hosted recover.html
-	ghURL := "https://github.com/eljojo/rememory/releases/tag/v1.0.0-test"
-	recoverContent := html.GenerateRecoverHTML("v1.0.0-test", ghURL, nil, html.RecoverHTMLOptions{
+	html.SetVersion("v1.0.0-test")
+	recoverContent := html.GenerateRecoverHTML(nil, html.RecoverHTMLOptions{
 		StaticHosted: true,
 	})
 	if err := os.WriteFile(filepath.Join(pagesDir, "recover.html"), []byte(recoverContent), 0644); err != nil {
@@ -739,8 +738,7 @@ func TestBundleRecovery(t *testing.T) {
 
 	// Generate bundles
 	cfg := bundle.Config{
-		Version:          "v1.0.0",
-		GitHubReleaseURL: "https://example.com",
+		Version: "v1.0.0",
 	}
 	bundle.GenerateAll(p, cfg)
 
@@ -871,8 +869,7 @@ func TestAnonymousBundleGeneration(t *testing.T) {
 
 	// Generate bundles
 	cfg := bundle.Config{
-		Version:          "v1.0.0-test",
-		GitHubReleaseURL: "https://example.com",
+		Version: "v1.0.0-test",
 	}
 	if err := bundle.GenerateAll(p, cfg); err != nil {
 		t.Fatalf("generating bundles: %v", err)
@@ -1014,8 +1011,7 @@ func TestAnonymousBundleRecovery(t *testing.T) {
 
 	// Generate bundles
 	cfg := bundle.Config{
-		Version:          "v1.0.0",
-		GitHubReleaseURL: "https://example.com",
+		Version: "v1.0.0",
 	}
 	bundle.GenerateAll(p, cfg)
 
@@ -1120,9 +1116,8 @@ func TestManifestEmbedding(t *testing.T) {
 		p.Save()
 
 		cfg := bundle.Config{
-			Version:          "v1.0.0",
-			GitHubReleaseURL: "https://example.com",
-			NoEmbedManifest:  noEmbed,
+			Version:         "v1.0.0",
+			NoEmbedManifest: noEmbed,
 		}
 		if err := bundle.GenerateAll(p, cfg); err != nil {
 			t.Fatalf("generating bundles: %v", err)

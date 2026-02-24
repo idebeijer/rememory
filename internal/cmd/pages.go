@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/eljojo/rememory/internal/core"
 	"github.com/eljojo/rememory/internal/html"
 	"github.com/eljojo/rememory/internal/project"
 )
@@ -28,8 +27,8 @@ func generatePages(p *project.Project) error {
 
 	// Generate recover.html for static hosting
 	// Include tlock support when the sealed project uses time-lock encryption
-	githubURL := fmt.Sprintf("%s/releases/tag/%s", core.GitHubRepo, version)
-	recoverHTML := html.GenerateRecoverHTML(version, githubURL, nil, html.RecoverHTMLOptions{
+	html.SetVersion(version)
+	recoverHTML := html.GenerateRecoverHTML(nil, html.RecoverHTMLOptions{
 		StaticHosted: true,
 	})
 	recoverDest := pagesDir + "/recover.html"

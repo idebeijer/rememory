@@ -6,15 +6,18 @@ import (
 	"testing"
 )
 
+func init() {
+	SetVersion("test")
+}
+
 // staticPages returns all static HTML pages for testing.
 func staticPages() map[string]string {
 	wasmStub := []byte{0x00, 0x61, 0x73, 0x6d} // WASM magic bytes
-	ghURL := "https://github.com/eljojo/rememory"
 	return map[string]string{
-		"maker.html":   GenerateMakerHTML(wasmStub, "test", ghURL, MakerHTMLOptions{}),
-		"recover.html": GenerateRecoverHTML("test", ghURL, nil),
-		"index.html":   GenerateIndexHTML("test", ghURL),
-		"docs.html":    GenerateDocsHTML("test", ghURL, "en"),
+		"maker.html":   GenerateMakerHTML(wasmStub, MakerHTMLOptions{}),
+		"recover.html": GenerateRecoverHTML(nil),
+		"index.html":   GenerateIndexHTML(),
+		"docs.html":    GenerateDocsHTML("en"),
 	}
 }
 
@@ -45,8 +48,7 @@ func TestStaticHTMLHasNoServerCode(t *testing.T) {
 // TestStaticHostedRecoverHTML verifies that static-hosted recover.html
 // contains the right config for auto-fetching from a relative MANIFEST.age URL.
 func TestStaticHostedRecoverHTML(t *testing.T) {
-	ghURL := "https://github.com/eljojo/rememory"
-	content := GenerateRecoverHTML("test", ghURL, nil, RecoverHTMLOptions{
+	content := GenerateRecoverHTML(nil, RecoverHTMLOptions{
 		StaticHosted: true,
 	})
 
@@ -164,7 +166,7 @@ func extractCSP(html string) string {
 // embedded chain config via createOfflineClient(), never HTTP.
 func TestMakerCSPNoDrandEndpoints(t *testing.T) {
 	wasmStub := []byte{0x00, 0x61, 0x73, 0x6d}
-	content := GenerateMakerHTML(wasmStub, "test", "http://test", MakerHTMLOptions{})
+	content := GenerateMakerHTML(wasmStub, MakerHTMLOptions{})
 
 	csp := extractCSP(content)
 	if strings.Contains(csp, "api.drand.sh") {
@@ -180,7 +182,7 @@ func TestMakerCSPNoDrandEndpoints(t *testing.T) {
 // available because it's offline — no --no-timelock flag applies to it.
 func TestMakerAlwaysIncludesTlock(t *testing.T) {
 	wasmStub := []byte{0x00, 0x61, 0x73, 0x6d}
-	content := GenerateMakerHTML(wasmStub, "test", "http://test", MakerHTMLOptions{})
+	content := GenerateMakerHTML(wasmStub, MakerHTMLOptions{})
 
 	if !strings.Contains(content, "DRAND_CONFIG") {
 		t.Error("maker.html should always include DRAND_CONFIG (offline encryption needs chain params)")
@@ -201,19 +203,19 @@ func TestMakerAlwaysIncludesTlock(t *testing.T) {
 //   - --no-timelock flag: forces app.js
 func TestRecoverHTMLUsesCorrectAppVariant(t *testing.T) {
 	// Generic recover.html (no personalization, no --no-timelock) should include tlock
-	generic := GenerateRecoverHTML("test", "http://test", nil)
+	generic := GenerateRecoverHTML(nil)
 	if !strings.Contains(generic, "DRAND_CONFIG") {
 		t.Error("generic recover.html should include DRAND_CONFIG (tlock variant)")
 	}
 
 	// No-tlock recover.html should not include tlock code
-	noTlock := GenerateRecoverHTML("test", "http://test", nil, RecoverHTMLOptions{NoTlock: true})
+	noTlock := GenerateRecoverHTML(nil, RecoverHTMLOptions{NoTlock: true})
 	if strings.Contains(noTlock, "DRAND_CONFIG") {
 		t.Error("no-tlock recover.html should not include DRAND_CONFIG")
 	}
 
 	// Personalized non-tlock bundle should not include tlock
-	nonTlockPers := GenerateRecoverHTML("test", "http://test", &PersonalizationData{
+	nonTlockPers := GenerateRecoverHTML(&PersonalizationData{
 		Holder:      "Alice",
 		HolderShare: "test-share",
 		Threshold:   2,
@@ -224,7 +226,7 @@ func TestRecoverHTMLUsesCorrectAppVariant(t *testing.T) {
 	}
 
 	// Personalized tlock bundle should include tlock
-	tlockPers := GenerateRecoverHTML("test", "http://test", &PersonalizationData{
+	tlockPers := GenerateRecoverHTML(&PersonalizationData{
 		Holder:       "Alice",
 		HolderShare:  "test-share",
 		Threshold:    2,
@@ -241,21 +243,21 @@ func TestRecoverHTMLUsesCorrectAppVariant(t *testing.T) {
 // blob: only for offline variants.
 func TestRecoverCSPMatchesVariant(t *testing.T) {
 	// Generic (tlock) should allow drand endpoints
-	generic := GenerateRecoverHTML("test", "http://test", nil)
+	generic := GenerateRecoverHTML(nil)
 	genericCSP := extractCSP(generic)
 	if !strings.Contains(genericCSP, "api.drand.sh") {
 		t.Errorf("generic recover.html CSP should allow drand endpoints: %s", genericCSP)
 	}
 
 	// No-tlock should only have blob:
-	noTlock := GenerateRecoverHTML("test", "http://test", nil, RecoverHTMLOptions{NoTlock: true})
+	noTlock := GenerateRecoverHTML(nil, RecoverHTMLOptions{NoTlock: true})
 	noTlockCSP := extractCSP(noTlock)
 	if strings.Contains(noTlockCSP, "api.drand.sh") {
 		t.Errorf("no-tlock recover.html CSP should not allow drand endpoints: %s", noTlockCSP)
 	}
 
 	// Selfhosted should include 'self' for manifest fetch
-	selfhosted := GenerateRecoverHTML("test", "http://test", nil, RecoverHTMLOptions{
+	selfhosted := GenerateRecoverHTML(nil, RecoverHTMLOptions{
 		Selfhosted:       true,
 		SelfhostedConfig: &SelfhostedConfig{MaxManifestSize: 50 << 20},
 	})
@@ -271,7 +273,7 @@ func TestRecoverCSPMatchesVariant(t *testing.T) {
 // contain getElementById('tlock-waiting') references that are inert when
 // the element is absent from the DOM.
 func TestNonTlockRecoverHasNoTlockWaitingUI(t *testing.T) {
-	content := GenerateRecoverHTML("test", "http://test", nil, RecoverHTMLOptions{NoTlock: true})
+	content := GenerateRecoverHTML(nil, RecoverHTMLOptions{NoTlock: true})
 
 	if strings.Contains(content, `id="tlock-waiting"`) {
 		t.Error("no-tlock recover.html should not contain tlock-waiting UI element")
@@ -281,26 +283,27 @@ func TestNonTlockRecoverHasNoTlockWaitingUI(t *testing.T) {
 // TestTlockRecoverHasTlockWaitingUI verifies that the tlock variant
 // includes the waiting UI for time-locked bundles.
 func TestTlockRecoverHasTlockWaitingUI(t *testing.T) {
-	content := GenerateRecoverHTML("test", "http://test", nil)
+	content := GenerateRecoverHTML(nil)
 
 	if !strings.Contains(content, `id="tlock-waiting"`) {
 		t.Error("generic recover.html should contain tlock-waiting UI element")
 	}
 }
 
-// TestTlockEnabledBundleOverridesNoTlock verifies that a tlock-enabled
-// personalized bundle always includes tlock support, even if --no-timelock
-// is passed. This prevents data loss where a tlock bundle can't be recovered.
-func TestTlockEnabledBundleOverridesNoTlock(t *testing.T) {
-	content := GenerateRecoverHTML("test", "http://test", &PersonalizationData{
+// TestTlockEnabledBundlePanicsWithNoTlock verifies that passing both NoTlock
+// and TlockEnabled panics — this combination is a programming error.
+func TestTlockEnabledBundlePanicsWithNoTlock(t *testing.T) {
+	defer func() {
+		if r := recover(); r == nil {
+			t.Error("expected panic when NoTlock and TlockEnabled are both set")
+		}
+	}()
+
+	GenerateRecoverHTML(&PersonalizationData{
 		Holder:       "Alice",
 		HolderShare:  "test-share",
 		Threshold:    2,
 		Total:        3,
 		TlockEnabled: true,
 	}, RecoverHTMLOptions{NoTlock: true})
-
-	if !strings.Contains(content, "DRAND_CONFIG") {
-		t.Error("tlock-enabled bundle must include DRAND_CONFIG even with --no-timelock")
-	}
 }

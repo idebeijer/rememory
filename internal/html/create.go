@@ -58,9 +58,7 @@ type SelfhostedConfig struct {
 // GenerateMakerHTML creates the complete maker.html with all assets embedded.
 // createWASMBytes is the create.wasm binary (runs in browser for bundle creation).
 // Note: recover.html uses native JavaScript crypto, not WASM.
-// version is the rememory version string.
-// githubURL is the URL to download CLI binaries.
-func GenerateMakerHTML(createWASMBytes []byte, version, githubURL string, opts MakerHTMLOptions) string {
+func GenerateMakerHTML(createWASMBytes []byte, opts MakerHTMLOptions) string {
 	html := makerHTMLTemplate
 
 	// Embed translations
@@ -110,10 +108,9 @@ func GenerateMakerHTML(createWASMBytes []byte, version, githubURL string, opts M
 	html = strings.Replace(html, "{{WASM_BASE64}}", createWASMB64, 1)
 
 	// Replace version and GitHub URLs
-	html = strings.Replace(html, "{{VERSION}}", version, -1)
+	html = strings.Replace(html, "{{VERSION}}", pkgVersion, -1)
 	html = strings.Replace(html, "{{GITHUB_REPO}}", core.GitHubRepo, -1)
 	html = strings.Replace(html, "{{GITHUB_PAGES}}", core.GitHubPages, -1)
-	html = strings.Replace(html, "{{GITHUB_URL}}", githubURL, -1)
 
 	// Selfhosted mode: rewrite nav links to server routes
 	if opts.Selfhosted {
