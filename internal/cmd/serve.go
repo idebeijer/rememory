@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 	"strconv"
 	"strings"
 
@@ -39,11 +40,25 @@ func init() {
 	rootCmd.AddCommand(serveCmd)
 }
 
+// flagOrEnv returns the flag value if explicitly set, otherwise falls back to
+// the environment variable. If neither is set, returns the flag's default.
+func flagOrEnv(cmd *cobra.Command, flagName, envName string) string {
+	if cmd.Flags().Changed(flagName) {
+		v, _ := cmd.Flags().GetString(flagName)
+		return v
+	}
+	if v := os.Getenv(envName); v != "" {
+		return v
+	}
+	v, _ := cmd.Flags().GetString(flagName)
+	return v
+}
+
 func runServe(cmd *cobra.Command, args []string) error {
-	port, _ := cmd.Flags().GetString("port")
-	host, _ := cmd.Flags().GetString("host")
-	dataDir, _ := cmd.Flags().GetString("data")
-	maxSizeStr, _ := cmd.Flags().GetString("max-manifest-size")
+	port := flagOrEnv(cmd, "port", "REMEMORY_PORT")
+	host := flagOrEnv(cmd, "host", "REMEMORY_HOST")
+	dataDir := flagOrEnv(cmd, "data", "REMEMORY_DATA")
+	maxSizeStr := flagOrEnv(cmd, "max-manifest-size", "REMEMORY_MAX_MANIFEST_SIZE")
 	noTlock, _ := cmd.Flags().GetBool("no-timelock")
 
 	maxSize, err := parseSize(maxSizeStr)
