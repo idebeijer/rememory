@@ -97,14 +97,6 @@ test.describe('Time-lock: maker.html advanced options', () => {
     expect(oneWeekText).toBeTruthy();
   });
 
-  test('rememoryTlock is available on window', async ({ page }) => {
-    const creation = new CreationPage(page, htmlPath);
-    await creation.open();
-
-    const hasTlock = await page.evaluate(() => typeof (window as any).rememoryTlock !== 'undefined');
-    expect(hasTlock).toBe(true);
-  });
-
   test('tlock bundle creation works fully offline (no network calls)', async ({ page }, testInfo) => {
     testInfo.setTimeout(120000);
 
@@ -184,16 +176,20 @@ test.describe('Time-lock: maker.html bundle creation and recovery with tlock', (
     await page.locator('#advanced-options [data-mode="advanced"]').click();
     await page.locator('#timelock-checkbox').check();
 
-    // Patch roundForTime to return a round ~15 seconds from now (quicknet: 3s period)
-    // This way the tlock encryption targets a near-future round that will be available
-    // by the time we try to recover.
+    // Set tlock to 15 seconds via DOM form fields. The 's' (seconds) unit is
+    // supported by computeTimelockDate but not in the visible <select>, so we
+    // inject a hidden option for the E2E test.
     await page.evaluate(() => {
-      const tlock = (window as any).rememoryTlock;
-      const cfg = (window as any).DRAND_CONFIG;
-      const targetUnix = Math.floor(Date.now() / 1000) + 15;
-      const nearFutureRound = Math.ceil((targetUnix - cfg.genesis) / cfg.period) + 1;
-      tlock.roundForTime = () => nearFutureRound;
+      const select = document.getElementById('timelock-unit') as HTMLSelectElement;
+      const opt = document.createElement('option');
+      opt.value = 's';
+      opt.textContent = 'seconds';
+      select.appendChild(opt);
+      select.value = 's';
+      select.dispatchEvent(new Event('change'));
     });
+    await page.locator('#timelock-value').fill('15');
+    await page.locator('#timelock-value').dispatchEvent('input');
 
     // Generate bundles — exercises the full tlock path:
     // JS archive → JS tlock-encrypt via real drand → WASM age-encrypt + split + bundle
@@ -276,8 +272,7 @@ test.describe('Time-lock: recover.html tlock detection', () => {
     await recovery.openFile(genericRecoverPath);
 
     // The tlock variant includes DRAND_CONFIG for tlock decryption.
-    // Recovery-side tlock code is now bundled directly in app-tlock.js
-    // (no separate window.rememoryTlock IIFE).
+    // Recovery-side tlock code is bundled directly in app-tlock.js.
     const hasDrandConfig = await page.evaluate(() => typeof (window as any).DRAND_CONFIG !== 'undefined');
     expect(hasDrandConfig).toBe(true);
   });

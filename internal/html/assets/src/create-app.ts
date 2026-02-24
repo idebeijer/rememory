@@ -690,17 +690,14 @@ declare const __SELFHOSTED__: boolean;
   }
 
   // Encrypt plaintext for a target date, returning everything the caller needs.
-  // Reads roundForTime/timeForRound from window.rememoryTlock so E2E tests can
-  // override them (e.g. to target a near-future round for faster test cycles).
   async function encryptForDate(plaintext: Uint8Array, targetDate: Date): Promise<{
     ciphertext: Uint8Array;
     round: number;
     unlockDate: Date;
   }> {
-    const tlock = (window as any).rememoryTlock;
-    const round = (tlock?.roundForTime ?? roundForTime)(targetDate);
+    const round = roundForTime(targetDate);
     const ciphertext = await tlockEncrypt(plaintext, round);
-    const unlockDate = (tlock?.timeForRound ?? timeForRound)(round);
+    const unlockDate = timeForRound(round);
     return { ciphertext, round, unlockDate };
   }
 
@@ -715,6 +712,7 @@ declare const __SELFHOSTED__: boolean;
     const now = new Date();
     let target: Date;
     switch (unit) {
+      case 's': target = new Date(now.getTime() + value * 1000); break;
       case 'min': target = new Date(now.getTime() + value * 60000); break;
       case 'h': target = new Date(now.getTime() + value * 3600000); break;
       case 'd': target = new Date(now.getTime() + value * 86400000); break;
@@ -797,14 +795,6 @@ declare const __SELFHOSTED__: boolean;
       }
     }
 
-    // Expose tlock functions on window for E2E test patching (roundForTime override)
-    (window as any).rememoryTlock = {
-      roundForTime,
-      timeForRound,
-      computeTimelockDate,
-      formatTimelockDate,
-      encryptForDate,
-    };
   }
 
   // Maximum total file size: selfhosted uses the server's configured limit,

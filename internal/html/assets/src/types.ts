@@ -93,21 +93,6 @@ export interface TlockContainerMeta {
   chain: string;
 }
 
-// RememoryTlock: creation-side functions exposed on window.rememoryTlock by
-// create-app.ts for E2E test patching (e.g. overriding roundForTime).
-// Recovery-side tlock code is now imported directly via __TLOCK__ guards in app.ts.
-export interface RememoryTlock {
-  roundForTime(target: Date): number;
-  timeForRound(round: number): Date;
-  computeTimelockDate(value: number, unit: string): Date | null;
-  formatTimelockDate(date: Date): string;
-  encryptForDate(plaintext: Uint8Array, targetDate: Date): Promise<{
-    ciphertext: Uint8Array;
-    round: number;
-    unlockDate: Date;
-  }>;
-}
-
 // ============================================
 // UI State Types
 // ============================================
@@ -200,9 +185,6 @@ declare global {
 
     // Personalization data (embedded in recover.html)
     PERSONALIZATION?: PersonalizationData | null;
-
-    // Tlock API (time-lock encryption, conditionally included)
-    rememoryTlock?: RememoryTlock;
 
     // Embedded constants
     WASM_BINARY?: string;
