@@ -72,6 +72,71 @@ test.describe('Browser Bundle Creation Tool', () => {
     await creation.expectThresholdOptions(['2 of 3', '3 of 3']);
   });
 
+  test('threshold is visible and selectable', async ({ page }) => {
+    const creation = new CreationPage(page, htmlPath);
+
+    await creation.open();
+
+    // Threshold is hidden until 2 friends have names
+    await creation.expectThresholdHidden();
+
+    // Fill in both names — threshold appears
+    await creation.setFriend(0, 'Alice');
+    await creation.expectThresholdHidden();
+    await creation.setFriend(1, 'Bob');
+    await creation.expectThresholdVisible();
+    await creation.expectThresholdOptions(['2 of 2']);
+
+    // Add a third friend and verify the threshold can be changed
+    await creation.addFriend();
+    await creation.setFriend(2, 'Carol');
+    await creation.expectThresholdVisible();
+    await creation.expectThresholdOptions(['2 of 3', '3 of 3']);
+    await creation.setThreshold(3);
+
+    // Remove a friend — threshold should still be visible with 2 named friends
+    await creation.removeFriend(2);
+    await creation.expectThresholdVisible();
+    await creation.expectThresholdOptions(['2 of 2']);
+  });
+
+  test('step numbers and button reflect progress', async ({ page }) => {
+    const creation = new CreationPage(page, htmlPath);
+
+    await creation.open();
+
+    // Initial state: steps 2 and 3 are pending, button is secondary
+    await creation.expectStepPending(2);
+    await creation.expectStepPending(3);
+    await creation.expectGenerateSecondary();
+
+    // Fill in friend names — step 2 unlocks, step 3 still pending (no files)
+    await creation.setFriend(0, 'Alice', 'alice@test.com');
+    await creation.setFriend(1, 'Bob', 'bob@test.com');
+    await creation.expectStepActive(2);
+    await creation.expectStepPending(3);
+    await creation.expectGenerateSecondary();
+
+    // Add files — step 3 unlocks, button turns green
+    const testFiles = creation.createTestFiles(tmpDir, 'btn-test');
+    await creation.addFiles(testFiles);
+    await creation.expectStepActive(2);
+    await creation.expectStepActive(3);
+    await creation.expectGeneratePrimary();
+
+    // Clear a friend name — steps 2 and 3 go pending, button goes secondary
+    await creation.setFriend(0, '', '');
+    await creation.expectStepPending(2);
+    await creation.expectStepPending(3);
+    await creation.expectGenerateSecondary();
+
+    // Restore the name — everything unlocks again
+    await creation.setFriend(0, 'Alice', 'alice@test.com');
+    await creation.expectStepActive(2);
+    await creation.expectStepActive(3);
+    await creation.expectGeneratePrimary();
+  });
+
   test('validates required fields', async ({ page }) => {
     const creation = new CreationPage(page, htmlPath);
 
@@ -191,20 +256,22 @@ friends:
     await creation.expectPageTitle('Criar Pacotes de Recuperação');
   });
 
-  test('minimum 2 friends required', async ({ page }) => {
+  test('minimum 2 friends required — remove clears fields instead', async ({ page }) => {
     const creation = new CreationPage(page, htmlPath);
 
     await creation.open();
-    creation.onDialog('dismiss');
 
-    // Should start with 2 friends
-    await creation.expectFriendCount(2);
+    // Fill in both friends
+    await creation.setFriend(0, 'Alice', 'alice@test.com');
+    await creation.setFriend(1, 'Bob', 'bob@test.com');
 
-    // Try to remove a friend - should fail (can't go below 2)
+    // Try to remove a friend — should clear fields, not remove the row
     await creation.removeFriend(1);
-
-    // Should still have 2 friends
     await creation.expectFriendCount(2);
+    await creation.expectFriendData(1, '', '');
+
+    // First friend should be untouched
+    await creation.expectFriendData(0, 'Alice', 'alice@test.com');
   });
 
   test('anonymous mode toggle hides friends list', async ({ page }) => {

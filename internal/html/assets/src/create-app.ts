@@ -117,6 +117,8 @@ declare const __SELFHOSTED__: boolean;
     downloadAllSection: HTMLElement | null;
     downloadAllBtn: HTMLButtonElement | null;
     downloadYamlBtn: HTMLElement | null;
+    stepNumber2: HTMLElement | null;
+    stepNumber3: HTMLElement | null;
   }
 
   // DOM elements
@@ -149,7 +151,9 @@ declare const __SELFHOSTED__: boolean;
     bundlesList: document.getElementById('bundles-list'),
     downloadAllSection: document.getElementById('download-all-section'),
     downloadAllBtn: document.getElementById('download-all-btn') as HTMLButtonElement | null,
-    downloadYamlBtn: document.getElementById('download-yaml-btn')
+    downloadYamlBtn: document.getElementById('download-yaml-btn'),
+    stepNumber2: document.getElementById('step-number-2'),
+    stepNumber3: document.getElementById('step-number-3'),
   };
 
   // ============================================
@@ -424,11 +428,19 @@ declare const __SELFHOSTED__: boolean;
 
   function removeFriend(index: number): void {
     if (state.friends.length <= 2) {
-      toast.warning(
-        t('error_min_friends_title'),
-        t('validation_min_friends'),
-        t('error_min_friends_guidance')
-      );
+      // Can't go below 2 friends — clear the fields instead
+      state.friends[index].name = '';
+      state.friends[index].contact = '';
+      state.friends[index].language = '';
+      const entry = elements.friendsList?.children[index] as HTMLElement | undefined;
+      if (entry) {
+        const nameInput = entry.querySelector('.friend-name') as HTMLInputElement | null;
+        const contactInput = entry.querySelector('.friend-contact') as HTMLInputElement | null;
+        if (nameInput) nameInput.value = '';
+        if (contactInput) contactInput.value = '';
+      }
+      updateThresholdVisibility();
+      checkGenerateReady();
       return;
     }
 
@@ -820,9 +832,25 @@ declare const __SELFHOSTED__: boolean;
   }
 
   function checkGenerateReady(): void {
+    const hasFiles = state.files.length > 0;
+    const hasFriends = state.anonymous
+      ? state.numShares >= 2
+      : state.friends.filter(f => f.name.trim().length > 0).length >= 2;
+
     if (elements.generateBtn) {
       elements.generateBtn.disabled = !state.wasmReady || state.generating || isOverSizeLimit();
+
+      // Button turns green only when files and friends are ready
+      if (hasFiles && hasFriends && !state.generationComplete) {
+        elements.generateBtn.classList.replace('btn-secondary', 'btn-primary');
+      } else {
+        elements.generateBtn.classList.replace('btn-primary', 'btn-secondary');
+      }
     }
+
+    // Step numbers turn green as prerequisites are met
+    elements.stepNumber2?.classList.toggle('pending', !hasFriends);
+    elements.stepNumber3?.classList.toggle('pending', !(hasFiles && hasFriends));
   }
 
   interface ValidationResult {
@@ -1076,7 +1104,7 @@ declare const __SELFHOSTED__: boolean;
       );
     } finally {
       state.generating = false;
-      if (elements.generateBtn) elements.generateBtn.disabled = false;
+      checkGenerateReady();
     }
   }
 

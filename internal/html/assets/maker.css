@@ -1,5 +1,11 @@
     /* Maker-specific styles */
 
+    /* Step progress */
+    .step-number.pending {
+      background: var(--text-muted);
+      transition: background 0.2s;
+    }
+
     /* Friend list */
     .friend-entry {
       display: grid;

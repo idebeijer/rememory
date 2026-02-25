@@ -584,6 +584,14 @@ export class CreationPage {
     }
   }
 
+  async expectThresholdVisible(): Promise<void> {
+    await expect(this.page.locator('#threshold-section')).toBeVisible();
+  }
+
+  async expectThresholdHidden(): Promise<void> {
+    await expect(this.page.locator('#threshold-section')).not.toBeVisible();
+  }
+
   // YAML import
   async importYAML(content: string): Promise<void> {
     // Open the import details
@@ -629,6 +637,22 @@ export class CreationPage {
 
   async expectGenerateDisabled(): Promise<void> {
     await expect(this.page.locator('#generate-btn')).toBeDisabled();
+  }
+
+  async expectGeneratePrimary(): Promise<void> {
+    await expect(this.page.locator('#generate-btn')).toHaveClass(/btn-primary/);
+  }
+
+  async expectGenerateSecondary(): Promise<void> {
+    await expect(this.page.locator('#generate-btn')).toHaveClass(/btn-secondary/);
+  }
+
+  async expectStepActive(step: number): Promise<void> {
+    await expect(this.page.locator(`#step-number-${step}`)).not.toHaveClass(/pending/);
+  }
+
+  async expectStepPending(step: number): Promise<void> {
+    await expect(this.page.locator(`#step-number-${step}`)).toHaveClass(/pending/);
   }
 
   async generate(): Promise<void> {

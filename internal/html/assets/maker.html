@@ -85,7 +85,7 @@
 
     <!-- Step 2: Manifest Files -->
     <div class="card">
-      <h2><span class="step-number">2</span> <span data-i18n="step2_title">Files to Protect</span></h2>
+      <h2><span class="step-number pending" id="step-number-2">2</span> <span data-i18n="step2_title">Files to Protect</span></h2>
 
       <div id="files-drop-zone" class="drop-zone">
         <p data-i18n="files_drop">Drag &amp; drop a folder here, or click to select files</p>
@@ -101,14 +101,14 @@
     <!-- Step 3: Generate -->
     <div class="card">
       <div class="card-header">
-        <h2><span class="step-number">3</span> <span data-i18n="step3_title">Generate Bundles</span></h2>
+        <h2><span class="step-number pending" id="step-number-3">3</span> <span data-i18n="step3_title">Generate Bundles</span></h2>
         {{TLOCK_TABS_HTML}}
       </div>
 
       {{TLOCK_PANEL_HTML}}
 
       <div class="generate-row">
-        <button id="generate-btn" class="btn btn-primary" disabled>
+        <button id="generate-btn" class="btn btn-secondary" disabled>
           <span data-i18n="generate_btn">Generate Bundles</span>
         </button>
         <p id="status-message" class="status-message"></p>
