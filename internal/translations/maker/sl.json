@@ -63,6 +63,7 @@
   "remove": "Odstrani",
   "threshold_guidance": "Premislite, kdo bo v primeru obnovitve podatkov dosegljiv hkrati. Nižje število je bolj prizanesljivo, če kdo ni na voljo.",
   "nav_about": "O projektu",
+  "nav_create": "Ustvari",
   "nav_guide": "Vodič",
   "nav_recover": "Obnovitev",
   "mode_simple": "Preprosto",

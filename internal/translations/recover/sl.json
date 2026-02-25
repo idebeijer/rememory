@@ -87,6 +87,7 @@
   "nav_about": "O projektu",
   "nav_create": "Ustvari",
   "nav_guide": "Vodič",
+  "nav_recover": "Obnovitev",
   "tlock_in_minutes": "čez {0} minut",
   "tlock_in_one_minute": "čez približno minuto",
   "tlock_decrypting": "Odklepanje časovne zaklepa...",

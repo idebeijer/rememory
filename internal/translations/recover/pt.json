@@ -87,6 +87,7 @@
   "nav_about": "Sobre",
   "nav_create": "Criar pacotes",
   "nav_guide": "Guia",
+  "nav_recover": "Recuperar",
   "tlock_in_minutes": "em {0} minutos",
   "tlock_in_one_minute": "em cerca de um minuto",
   "tlock_decrypting": "Abrindo bloqueio por data...",

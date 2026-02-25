@@ -60,78 +60,225 @@ type SelfhostedConfig struct {
 // createWASMBytes is the create.wasm binary (runs in browser for bundle creation).
 // Note: recover.html uses native JavaScript crypto, not WASM.
 func GenerateMakerHTML(createWASMBytes []byte, opts MakerHTMLOptions) string {
-	html := makerHTMLTemplate
+	// Process content template
+	content := makerHTMLTemplate
+	content = strings.Replace(content, "{{TLOCK_TABS_HTML}}", tlockTabsHTML, 1)
+	content = strings.Replace(content, "{{TLOCK_PANEL_HTML}}", tlockPanelHTML, 1)
 
-	// Embed translations
-	html = strings.Replace(html, "{{TRANSLATIONS}}", translations.GetTranslationsJS("maker"), 1)
-
-	// Embed language picker (generated from translations.LangNames)
-	html = strings.Replace(html, "{{LANG_OPTIONS}}", translations.LangSelectOptions(), 1)
-	html = strings.Replace(html, "{{LANG_DETECT}}", translations.LangDetectJS(), 1)
-
-	// Embed styles
-	html = strings.Replace(html, "{{STYLES}}", stylesCSS, 1)
-
-	// Embed wasm_exec.js
-	html = strings.Replace(html, "{{WASM_EXEC}}", wasmExecJS, 1)
-
-	// Embed shared.js + create-app.js (selfhosted variant when applicable)
-	appScript := createAppJS
-	if opts.Selfhosted {
-		appScript = createAppSelfhostedJS
-	}
-	html = strings.Replace(html, "{{CREATE_APP_JS}}", sharedJS+"\n"+appScript, 1)
-
-	// Embed selfhosted config (or empty)
-	if opts.Selfhosted && opts.SelfhostedConfig != nil {
-		configJSON, _ := json.Marshal(opts.SelfhostedConfig)
-		html = strings.Replace(html, "{{SELFHOSTED_CONFIG}}", string(configJSON), 1)
-	} else {
-		html = strings.Replace(html, "{{SELFHOSTED_CONFIG}}", "null", 1)
-	}
-
-	// Inject maximum total file size from Go (the backend decides the value).
-	if opts.Selfhosted && opts.SelfhostedConfig != nil {
-		html = strings.Replace(html, "{{MAX_TOTAL_FILE_SIZE}}", strconv.Itoa(opts.SelfhostedConfig.MaxManifestSize), 1)
-	} else {
-		html = strings.Replace(html, "{{MAX_TOTAL_FILE_SIZE}}", strconv.Itoa(core.MaxTotalSize), 1)
-	}
-
-	// Tlock encryption is always included in maker.html — it's offline (no HTTP calls).
-	// {{TLOCK_JS}} injects only the drand config script; the encryption code is
-	// bundled directly in create-app.js via the offline drand client.
-	html = strings.Replace(html, "{{TLOCK_JS}}", drandConfigScript(), 1)
-	html = strings.Replace(html, "{{TLOCK_TABS_HTML}}", tlockTabsHTML, 1)
-	html = strings.Replace(html, "{{TLOCK_PANEL_HTML}}", tlockPanelHTML, 1)
-
-	// CSP: blob: for WASM loading. No drand endpoints needed — encryption is offline.
+	// Build CSP connect-src
 	cspConnectSrc := "blob:"
 	if opts.Selfhosted {
 		cspConnectSrc += " 'self'"
 	}
-	html = strings.Replace(html, "{{CSP_CONNECT_SRC}}", cspConnectSrc, 1)
 
-	// Embed create.wasm as gzip-compressed base64 (this runs in the browser)
-	createWASMB64 := compressAndEncode(createWASMBytes)
-	html = strings.Replace(html, "{{WASM_BASE64}}", createWASMB64, 1)
+	// CSP meta tag
+	headMeta := `<meta name="generator" content="ReMemory {{VERSION}}">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'nonce-{{CSP_NONCE}}' 'wasm-unsafe-eval'; style-src 'unsafe-inline'; img-src blob: data:; connect-src ` + cspConnectSrc + `; form-action 'none';">`
 
-	// Replace version and GitHub URLs
-	html = strings.Replace(html, "{{VERSION}}", pkgVersion, -1)
-	html = strings.Replace(html, "{{GITHUB_REPO}}", core.GitHubRepo, -1)
-	html = strings.Replace(html, "{{GITHUB_PAGES}}", core.GitHubPages, -1)
+	// Language selector for nav
+	navExtras := `<select class="lang-select" id="lang-select">
+        ` + translations.LangSelectOptions() + `
+      </select>`
 
-	// Selfhosted mode: rewrite nav links to server routes
-	if opts.Selfhosted {
-		html = strings.Replace(html, `href="index.html" class="logo"`, `href="/" class="logo"`, -1)
-		html = strings.Replace(html, `href="index.html" data-i18n="nav_about"`, `href="/about" data-i18n="nav_about"`, -1)
-		html = strings.Replace(html, `href="maker.html"`, `href="/create"`, -1)
-		html = strings.Replace(html, `href="recover.html"`, `href="/recover"`, -1)
-		html = strings.Replace(html, `href="docs.html"`, `href="/docs"`, -1)
-		html = strings.Replace(html, `<a href="`+core.GitHubRepo+`" target="_blank">GitHub</a>`, "", -1)
+	// Selfhosted config
+	var selfhostedConfigJSON string
+	if opts.Selfhosted && opts.SelfhostedConfig != nil {
+		configData, _ := json.Marshal(opts.SelfhostedConfig)
+		selfhostedConfigJSON = string(configData)
+	} else {
+		selfhostedConfigJSON = "null"
 	}
 
-	// Apply CSP nonce to all script tags
-	html = applyCSPNonce(html)
+	// Max total file size
+	var maxTotalFileSize string
+	if opts.Selfhosted && opts.SelfhostedConfig != nil {
+		maxTotalFileSize = strconv.Itoa(opts.SelfhostedConfig.MaxManifestSize)
+	} else {
+		maxTotalFileSize = strconv.Itoa(core.MaxTotalSize)
+	}
 
-	return html
+	// Select app JS variant
+	appScript := createAppJS
+	if opts.Selfhosted {
+		appScript = createAppSelfhostedJS
+	}
+
+	// Embed create.wasm as gzip-compressed base64
+	createWASMB64 := compressAndEncode(createWASMBytes)
+
+	// Build all scripts
+	var scripts strings.Builder
+
+	// Translations
+	scripts.WriteString(`
+  <!-- Translations -->
+  <script nonce="{{CSP_NONCE}}">
+    const translations = ` + translations.GetTranslationsJS("maker") + `;
+
+    let currentLang = 'en';
+
+    function t(key, ...args) {
+      let text = translations[currentLang][key] || translations['en'][key] || key;
+      args.forEach((arg, i) => {
+        text = text.replace(` + "`{${i}}`" + `, arg);
+      });
+      return text;
+    }
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem('rememory-lang', lang);
+
+      // Update select
+      const sel = document.getElementById('lang-select');
+      if (sel) sel.value = lang;
+
+      // Update all translatable elements
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.dataset.i18n;
+        el.textContent = t(key);
+      });
+
+      // Update placeholder attributes
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.dataset.i18nPlaceholder;
+        el.placeholder = t(key);
+      });
+
+      // Update page title
+      document.title = t('title');
+
+      // Re-render dynamic content
+      if (typeof window.rememoryUpdateUI === 'function') {
+        window.rememoryUpdateUI();
+      }
+    }
+
+    // Set initial language immediately
+    (function() {
+      const saved = localStorage.getItem('rememory-lang');
+      const langs = ` + translations.LangDetectJS() + `;
+      const detected = navigator.languages.find((l) => langs.includes(l))
+        || navigator.languages.map((l) => l.split('-')[0]).find((l) => langs.includes(l));
+      currentLang = saved || detected || 'en';
+    })();
+
+    // Initialize language select after DOM is ready
+    document.addEventListener('DOMContentLoaded', () => {
+      setLanguage(currentLang);
+
+      document.getElementById('lang-select')?.addEventListener('change', (e) => {
+        setLanguage(e.target.value);
+      });
+    });
+  </script>`)
+
+	// WASM runtime
+	scripts.WriteString("\n\n  <!-- Go WASM runtime -->\n  <script nonce=\"{{CSP_NONCE}}\">" + wasmExecJS + "</script>")
+
+	// WASM binary and config
+	scripts.WriteString(`
+
+  <!-- Embedded WASM binary (base64) -->
+  <script nonce="{{CSP_NONCE}}">
+    window.WASM_BINARY = "` + createWASMB64 + `";
+    window.VERSION = "{{VERSION}}";
+    window.SELFHOSTED_CONFIG = ` + selfhostedConfigJSON + `;
+    window.MAX_TOTAL_FILE_SIZE = ` + maxTotalFileSize + `;
+  </script>`)
+
+	// Tlock encryption config
+	scripts.WriteString("\n\n  <!-- Time-lock encryption (conditionally included) -->\n  " + drandConfigScript())
+
+	// Application logic
+	scripts.WriteString("\n\n  <!-- Application logic -->\n  <script nonce=\"{{CSP_NONCE}}\">" + sharedJS + "\n" + appScript + "</script>")
+
+	// WASM loader
+	scripts.WriteString(`
+
+  <!-- Load WASM from embedded gzip-compressed binary -->
+  <script nonce="{{CSP_NONCE}}">
+    (async function() {
+      const go = new Go();
+      try {
+        // Decode base64 to get gzip-compressed data
+        const compressed = Uint8Array.from(atob(window.WASM_BINARY), c => c.charCodeAt(0));
+
+        // Decompress using DecompressionStream (modern browsers)
+        let bytes;
+        if (typeof DecompressionStream !== 'undefined') {
+          const ds = new DecompressionStream('gzip');
+          const writer = ds.writable.getWriter();
+          writer.write(compressed);
+          writer.close();
+          const reader = ds.readable.getReader();
+          const chunks = [];
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            chunks.push(value);
+          }
+          const totalLength = chunks.reduce((acc, chunk) => acc + chunk.length, 0);
+          bytes = new Uint8Array(totalLength);
+          let offset = 0;
+          for (const chunk of chunks) {
+            bytes.set(chunk, offset);
+            offset += chunk.length;
+          }
+        } else {
+          // Fallback: use pako if available, or show error
+          if (typeof pako !== 'undefined') {
+            bytes = pako.inflate(compressed);
+          } else {
+            throw new Error('Browser does not support DecompressionStream');
+          }
+        }
+
+        const result = await WebAssembly.instantiate(bytes.buffer, go.importObject);
+        go.run(result.instance);
+      } catch (err) {
+        // Show user-friendly error with guidance
+        const indicator = document.getElementById('wasm-loading-indicator');
+        if (indicator) indicator.classList.add('hidden');
+        const errorContainer = document.getElementById('wasm-error-container');
+        if (errorContainer) {
+          errorContainer.classList.remove('hidden');
+          errorContainer.innerHTML = ` + "`" + `
+            <div class="wasm-fallback">
+              <p><strong>Could not load the bundle creator</strong></p>
+              <p>This can happen with older browsers or certain privacy settings.</p>
+              <div class="loading-error-actions">
+                <button class="btn btn-primary" id="reload-page-btn">Reload page</button>
+                <a href="{{GITHUB_REPO}}" class="btn btn-secondary" target="_blank">Use CLI tool instead</a>
+              </div>
+            </div>
+          ` + "`" + `;
+          document.getElementById('reload-page-btn')?.addEventListener('click', () => window.location.reload());
+        }
+      }
+    })();
+  </script>`)
+
+	// Nav-hiding script: remove the Create link from nav (current page)
+	navHideScript := `
+  <script nonce="{{CSP_NONCE}}">document.querySelector('#nav-links-main a[href="maker.html"]')?.remove();</script>`
+
+	// Assemble page using layout
+	result := applyLayout(LayoutOptions{
+		Title:      "\xF0\x9F\xA7\xA0 ReMemory - Create Recovery Bundles",
+		HeadMeta:   headMeta,
+		PageStyles: makerCSS,
+		Selfhosted: opts.Selfhosted,
+		NavExtras:  navExtras,
+		BeforeContainer: `<!-- Toast notifications container -->
+  <div id="toast-container" class="toast-container" role="alert" aria-live="polite"></div>`,
+		Content:       content,
+		FooterContent: `<p><span data-i18n="works_offline">Works completely offline</span></p><p class="version">{{VERSION}}</p>`,
+		Scripts:       navHideScript + scripts.String(),
+	})
+
+	// Apply CSP nonce to all script tags
+	result = applyCSPNonce(result)
+
+	return result
 }

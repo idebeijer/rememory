@@ -4,6 +4,11 @@ import (
 	"embed"
 )
 
+// Shared layout template used by all pages
+//
+//go:embed assets/layout.html
+var layoutHTMLTemplate string
+
 // Embedded assets for the recovery HTML
 // These files are embedded at compile time
 
@@ -50,8 +55,8 @@ var createAppSelfhostedJS string
 
 // Static page templates (no WASM needed)
 
-//go:embed assets/index.html
-var indexHTMLTemplate string
+//go:embed assets/about.html
+var aboutHTMLTemplate string
 
 //go:embed assets/docs-template.html
 var docsHTMLTemplate string
@@ -61,6 +66,31 @@ var docsContentFS embed.FS
 
 //go:embed assets/dataflow.js
 var dataflowJS string
+
+// Selfhosted page templates
+
+//go:embed assets/home.html
+var homeHTMLTemplate string
+
+//go:embed assets/setup.html
+var setupHTMLTemplate string
+
+// Page-specific CSS (extracted from Go constants into .css files)
+
+//go:embed assets/home.css
+var homeCSS string
+
+//go:embed assets/maker.css
+var makerCSS string
+
+//go:embed assets/index.css
+var indexCSS string
+
+//go:embed assets/setup.css
+var setupCSS string
+
+//go:embed assets/tlock-waiting.css
+var tlockWaitingCSS string
 
 // createWASM is set at build time for the CLI binary (not for WASM builds)
 // This avoids circular dependency since create.wasm embeds the html package

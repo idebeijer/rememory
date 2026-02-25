@@ -1056,7 +1056,7 @@ declare const __SELFHOSTED__: boolean;
           const sep = document.createTextNode(' \u00b7 ');
           const link = document.createElement('a');
           link.href = '/';
-          link.textContent = 'Go to home page';
+          link.textContent = t('go_to_home');
           nextStepsHint.appendChild(sep);
           nextStepsHint.appendChild(link);
         }
@@ -1245,10 +1245,10 @@ declare const __SELFHOSTED__: boolean;
           throw new Error(text || `Server returned ${resp.status}`);
         }
 
-        toast.success(t('complete'), 'Saved to server.');
+        toast.success(t('complete'), t('saved_to_server'));
       } catch (err) {
         const msg = (err instanceof Error) ? err.message : String(err);
-        toast.warning(t('error_title'), `Could not save to server: ${msg}`);
+        toast.warning(t('error_title'), t('save_to_server_error', msg));
       }
     };
   }

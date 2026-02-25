@@ -87,8 +87,8 @@ test.describe('Static Pages', () => {
     const html = fs.readFileSync(path.join(pagesDir, 'recover.html'), 'utf-8');
     expect(html).toContain('"manifestURL":"./MANIFEST.age"');
     expect(html).not.toContain('/api/bundle');
-    // Nav links should not be rewritten
-    expect(html).toContain('href="index.html"');
+    // Nav links should use filenames, not server routes
+    expect(html).toContain('href="about.html"');
   });
 
   test('static pages recovery: manifest auto-loads and recovery completes', async ({ page }, testInfo) => {

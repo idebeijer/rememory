@@ -2,8 +2,11 @@ package serve
 
 import (
 	"fmt"
+	"io/fs"
 	"net/http"
+	"strings"
 
+	"github.com/eljojo/rememory/docs"
 	"github.com/eljojo/rememory/internal/html"
 )
 
@@ -12,8 +15,7 @@ type Config struct {
 	Host            string
 	Port            string
 	DataDir         string
-	MaxManifestSize int  // Maximum MANIFEST.age size in bytes
-	NoTlock         bool // Omit time-lock support
+	MaxManifestSize int // Maximum MANIFEST.age size in bytes
 	Version         string
 }
 
@@ -21,7 +23,6 @@ type Config struct {
 type Server struct {
 	store           *Store
 	maxManifestSize int
-	noTlock         bool
 	version         string
 	mux             *http.ServeMux
 }
@@ -38,7 +39,6 @@ func New(cfg Config) (*Server, error) {
 	s := &Server{
 		store:           store,
 		maxManifestSize: cfg.MaxManifestSize,
-		noTlock:         cfg.NoTlock,
 		version:         cfg.Version,
 		mux:             http.NewServeMux(),
 	}
@@ -49,25 +49,55 @@ func New(cfg Config) (*Server, error) {
 
 // routes registers all HTTP routes.
 func (s *Server) routes() {
-	// Pages
+	// Pages (filename-based routes)
 	s.mux.HandleFunc("GET /", s.handleRoot)
-	s.mux.HandleFunc("GET /create", s.handleCreate)
-	s.mux.HandleFunc("GET /recover", s.handleRecover)
-	s.mux.HandleFunc("GET /about", s.handleAbout)
-	s.mux.HandleFunc("GET /docs", s.handleDocs)
+	s.mux.HandleFunc("GET /maker.html", s.handleCreate)
+	s.mux.HandleFunc("GET /recover.html", s.handleRecover)
+	s.mux.HandleFunc("GET /about.html", s.handleAbout)
+	s.mux.HandleFunc("GET /docs.html", s.docsHandler("en"))
+	for _, lang := range html.DocsLanguages() {
+		s.mux.HandleFunc("GET /docs."+lang+".html", s.docsHandler(lang))
+	}
 
-	// Redirect .html paths to clean routes (docs content links to these)
+	// Redirect old clean routes to filename routes (backward compat).
+	// Query strings are preserved so /recover?id=X → /recover.html?id=X.
 	for _, r := range [][2]string{
-		{"/index.html", "/about"},
-		{"/maker.html", "/create"},
-		{"/recover.html", "/recover"},
-		{"/docs.html", "/docs"},
+		{"/create", "/maker.html"},
+		{"/recover", "/recover.html"},
+		{"/about", "/about.html"},
+		{"/docs", "/docs.html"},
+		{"/index.html", "/about.html"},
 	} {
 		from, to := r[0], r[1]
 		s.mux.HandleFunc("GET "+from, func(w http.ResponseWriter, r *http.Request) {
-			http.Redirect(w, r, to, http.StatusMovedPermanently)
+			target := to
+			if r.URL.RawQuery != "" {
+				target += "?" + r.URL.RawQuery
+			}
+			http.Redirect(w, r, target, http.StatusMovedPermanently)
 		})
 	}
+
+	// Static assets (docs screenshots, embedded in binary).
+	// Only English screenshots are embedded. Non-English language paths
+	// fall back to English (e.g. /screenshots/de/friends.png → en/friends.png).
+	screenshotsFS, _ := fs.Sub(docs.ScreenshotsFS, "screenshots")
+	fileServer := http.FileServer(http.FS(screenshotsFS))
+	s.mux.HandleFunc("GET /screenshots/", func(w http.ResponseWriter, r *http.Request) {
+		// Try the requested path first
+		path := strings.TrimPrefix(r.URL.Path, "/screenshots/")
+		if _, err := fs.Stat(screenshotsFS, path); err != nil {
+			// Not found — try English fallback: replace leading lang dir with "en"
+			parts := strings.SplitN(path, "/", 2)
+			if len(parts) == 2 {
+				enPath := "en/" + parts[1]
+				if _, err := fs.Stat(screenshotsFS, enPath); err == nil {
+					r.URL.Path = "/screenshots/" + enPath
+				}
+			}
+		}
+		http.StripPrefix("/screenshots/", fileServer).ServeHTTP(w, r)
+	})
 
 	// API
 	s.mux.HandleFunc("GET /api/status", s.handleAPIStatus)

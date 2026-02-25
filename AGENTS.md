@@ -76,27 +76,9 @@ Calm, steady, human. Considered. Kind.
 
 ### Color palette
 
-| Role                | Hex       | RGB             | Use                                              |
-|---------------------|-----------|-----------------|--------------------------------------------------|
-| Paper (background)  | `#f5f5f5` | (245, 245, 245) | Page background. Clean, neutral.                 |
-| Paper light (cards) | `#ffffff` | (255, 255, 255) | Cards, elevated surfaces.                        |
-| Text                | `#2E2A26` | (46, 42, 38)    | Primary text. Warm dark brown, not black.         |
-| Text secondary      | `#6B6560` | (107, 101, 96)  | Hints, captions, secondary text.                 |
-| Text muted          | `#8A8480` | (138, 132, 128) | Timestamps, metadata, least-prominent text.      |
-| Sage (accent)       | `#55735A` | (85, 115, 90)   | Primary accent: buttons, step numbers, banners.  |
-| Sage dark           | `#466B4A` | (70, 107, 74)   | Hover/active state for sage elements.            |
-| Sage tint           | `#E8EFEA` | (232, 239, 234) | Soft info blocks, section headers, code blocks.  |
-| Sage light          | `#E8F2EA` | (232, 242, 234) | Subtitle bars, success backgrounds.              |
-| Sand                | `#f0f0ee` | (240, 240, 238) | Neutral highlight blocks, procedure cards.       |
-| Rose                | `#F3E6E6` | (243, 230, 230) | Gentle emphasis. Not alarm — just "hey, read this." |
-| Dusty blue          | `#7A8FA6` | (122, 143, 166) | Secondary accent: links, diagrams, step badges.  |
-| Dusty blue dark     | `#647A8F` | (100, 122, 143) | Hover/active state for dusty blue elements.      |
-| Border              | `#ddd`    | (221, 221, 221) | Card borders, dividers.                          |
-| Border light        | `#eee`    | (238, 238, 238) | Subtle separators.                               |
+The source of truth for all colors is `internal/html/assets/styles.css` (the `:root` CSS variables). All HTML templates share this file via the layout system. The PDF (`internal/pdf/readme.go`) should match these values. The only exception is the dataflow animation (`internal/html/assets/dataflow.js`).
 
 **Avoid:** pure black (`#000000`), bright red, corporate blue, high-contrast anything.
-
-These values apply to the PDF (`internal/pdf/readme.go`), website CSS (`internal/html/assets/styles.css`), HTML templates. The only exception is the dataflow animation (`internal/html/assets/dataflow.js`).
 
 ## Non-goals
 

@@ -63,6 +63,7 @@
   "remove": "Supprimer",
   "threshold_guidance": "Pensez à qui pourrait être joignable en même temps. Un nombre plus bas pardonne mieux l'absence de quelqu'un.",
   "nav_about": "À propos",
+  "nav_create": "Créer",
   "nav_guide": "Guide",
   "nav_recover": "Récupérer",
   "mode_simple": "Simple",

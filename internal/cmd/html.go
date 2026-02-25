@@ -10,12 +10,12 @@ import (
 )
 
 var htmlCmd = &cobra.Command{
-	Use:   "html [index|create|docs|recover|site]",
+	Use:   "html [about|create|docs|recover|site]",
 	Short: "Generate standalone HTML files for static hosting",
 	Long: `Generate standalone HTML files that can be hosted on a static website.
 
 Commands:
-  index    Generate index.html (landing page)
+  about    Generate about.html (landing page)
   create   Generate maker.html (bundle creation tool)
   docs     Generate docs.html (documentation page)
   recover  Generate recover.html (recovery tool for collecting shares)
@@ -25,7 +25,7 @@ The create and recover HTML files are self-contained with embedded WASM binary,
 JavaScript, and CSS. They work fully offline.
 
 Examples:
-  rememory html index > index.html
+  rememory html about > about.html
   rememory html create > maker.html
   rememory html docs > docs.html
   rememory html recover > recover.html
@@ -52,9 +52,9 @@ func runHTML(cmd *cobra.Command, args []string) error {
 	var content string
 
 	switch subcommand {
-	case "index":
-		// Generate index.html (landing page)
-		content = html.GenerateIndexHTML()
+	case "about", "index":
+		// Generate about.html (landing page). "index" kept as alias.
+		content = html.GenerateIndexHTML(false)
 
 	case "docs":
 		// Generate docs.html (documentation page)
@@ -80,7 +80,7 @@ func runHTML(cmd *cobra.Command, args []string) error {
 		return runHTMLSite(cmd)
 
 	default:
-		return fmt.Errorf("unknown subcommand: %s (use 'index', 'create', 'docs', 'recover', or 'site')", subcommand)
+		return fmt.Errorf("unknown subcommand: %s (use 'about', 'create', 'docs', 'recover', or 'site')", subcommand)
 	}
 
 	// Output to file or stdout
@@ -120,8 +120,10 @@ func runHTMLSite(cmd *cobra.Command) error {
 		return fmt.Errorf("create.wasm not embedded - rebuild with 'make build'")
 	}
 
+	aboutHTML := html.GenerateIndexHTML(false)
 	files := []file{
-		{"index.html", html.GenerateIndexHTML()},
+		{"about.html", aboutHTML},
+		{"index.html", aboutHTML}, // Copy for GitHub Pages root URL
 		{"maker.html", html.GenerateMakerHTML(createWASM, html.MakerHTMLOptions{})},
 		{"docs.html", html.GenerateDocsHTML("en")},
 		{"recover.html", html.GenerateRecoverHTML(nil, html.RecoverHTMLOptions{NoTlock: noTlock})},

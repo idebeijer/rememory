@@ -36,7 +36,6 @@ func init() {
 	serveCmd.Flags().String("host", "127.0.0.1", "Host to bind to")
 	serveCmd.Flags().StringP("data", "d", "./rememory-data", "Data directory for storing bundles and config")
 	serveCmd.Flags().String("max-manifest-size", "50MB", "Maximum MANIFEST.age size (e.g. 50MB, 1GB)")
-	serveCmd.Flags().Bool("no-timelock", false, "Omit time-lock support from the recovery page")
 	rootCmd.AddCommand(serveCmd)
 }
 
@@ -59,7 +58,6 @@ func runServe(cmd *cobra.Command, args []string) error {
 	host := flagOrEnv(cmd, "host", "REMEMORY_HOST")
 	dataDir := flagOrEnv(cmd, "data", "REMEMORY_DATA")
 	maxSizeStr := flagOrEnv(cmd, "max-manifest-size", "REMEMORY_MAX_MANIFEST_SIZE")
-	noTlock, _ := cmd.Flags().GetBool("no-timelock")
 
 	maxSize, err := parseSize(maxSizeStr)
 	if err != nil {
@@ -76,7 +74,6 @@ func runServe(cmd *cobra.Command, args []string) error {
 		Port:            port,
 		DataDir:         dataDir,
 		MaxManifestSize: maxSize,
-		NoTlock:         noTlock,
 		Version:         version,
 	})
 	if err != nil {

@@ -21,7 +21,7 @@ async function getAvailablePort(): Promise<number> {
 
 // Start rememory serve and wait for it to be ready
 async function startServer(bin: string, port: number, dataDir: string): Promise<ChildProcess> {
-  const proc = spawn(bin, ['serve', '--port', String(port), '--host', '127.0.0.1', '--data', dataDir, '--no-timelock'], {
+  const proc = spawn(bin, ['serve', '--port', String(port), '--host', '127.0.0.1', '--data', dataDir], {
     stdio: ['ignore', 'pipe', 'pipe'],
   });
 
@@ -76,6 +76,20 @@ test.describe('Selfhosted Server', () => {
     }
   });
 
+  // Helper: ensure admin password is set (idempotent — skips if already done).
+  // Calls the API directly to avoid UI timing issues.
+  async function ensureSetup() {
+    try {
+      await fetch(`${baseURL}/api/setup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: adminPassword }),
+      });
+    } catch {
+      // already set up, or server responded with error — either way, continue
+    }
+  }
+
   test('happy path: setup, create, home, recover, delete', async ({ page }, testInfo) => {
     testInfo.setTimeout(180000);
 
@@ -100,7 +114,7 @@ test.describe('Selfhosted Server', () => {
     // -----------------------------------------------------------
     // Step 2: Navigate to /create and create bundles
     // -----------------------------------------------------------
-    await page.goto(`${baseURL}/create`);
+    await page.goto(`${baseURL}/maker.html`);
 
     // Wait for WASM to load
     await page.waitForFunction(
@@ -190,10 +204,10 @@ test.describe('Selfhosted Server', () => {
     // -----------------------------------------------------------
     const recoverLink = card.locator('.bundle-actions a');
     const recoverHref = await recoverLink.getAttribute('href');
-    expect(recoverHref).toContain('/recover?id=');
+    expect(recoverHref).toContain('recover.html?id=');
 
     await recoverLink.click();
-    await page.waitForURL(/\/recover\?id=/);
+    await page.waitForURL(/\/recover\.html\?id=/);
 
     await page.waitForFunction(
       () => (window as any).rememoryAppReady === true,
@@ -236,5 +250,49 @@ test.describe('Selfhosted Server', () => {
     const statusAfter = await fetch(`${baseURL}/api/status`);
     const statusDataAfter = await statusAfter.json();
     expect(statusDataAfter.hasManifest).toBe(false);
+  });
+
+  test('create page: nav links show translated text, not raw i18n keys', async ({ page }) => {
+    await ensureSetup();
+    await page.goto(`${baseURL}/maker.html`);
+
+    // Translations are applied on DOMContentLoaded — no need to wait for WASM
+    const nav = page.locator('.site-nav');
+
+    // Wait for a translated nav link to confirm translations loaded
+    await expect(nav.locator('a', { hasText: 'About' })).toBeVisible();
+
+    // Nav should not contain raw i18n keys
+    const navText = await nav.textContent();
+    expect(navText).not.toContain('nav_create');
+    expect(navText).not.toContain('nav_about');
+    expect(navText).not.toContain('nav_guide');
+    expect(navText).not.toContain('nav_recover');
+
+    // Nav should contain actual translated text (Create link is hidden on the create page)
+    await expect(nav.locator('a', { hasText: 'Guide' })).toBeVisible();
+    await expect(nav.locator('a', { hasText: 'Recover' })).toBeVisible();
+  });
+
+  test('recover page: single nav, no duplicates, no raw i18n keys', async ({ page }) => {
+    await ensureSetup();
+    await page.goto(`${baseURL}/recover.html`);
+
+    // Translations are applied on DOMContentLoaded — no need to wait for full app init
+    const nav = page.locator('.site-nav');
+
+    // Wait for a translated nav link to confirm translations loaded
+    await expect(nav.locator('a', { hasText: 'About' })).toBeVisible();
+
+    // Should have exactly one visible nav-links div (not duplicated)
+    const visibleNavLinks = page.locator('.nav-links:visible');
+    await expect(visibleNavLinks).toHaveCount(1);
+
+    // Nav should not contain raw i18n keys
+    const navText = await nav.textContent();
+    expect(navText).not.toContain('nav_create');
+    expect(navText).not.toContain('nav_about');
+    expect(navText).not.toContain('nav_guide');
+    expect(navText).not.toContain('nav_recover');
   });
 });

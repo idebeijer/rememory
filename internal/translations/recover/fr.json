@@ -87,6 +87,7 @@
   "nav_about": "À propos",
   "nav_create": "Créer",
   "nav_guide": "Guide",
+  "nav_recover": "Récupérer",
   "tlock_in_minutes": "dans {0} minutes",
   "tlock_in_one_minute": "dans environ une minute",
   "tlock_decrypting": "Déverrouillage temporel en cours...",

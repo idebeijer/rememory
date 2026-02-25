@@ -63,6 +63,7 @@
   "remove": "Remover",
   "threshold_guidance": "Pense em quem pode estar acessível ao mesmo tempo. Um número menor é mais flexível se alguém não estiver disponível.",
   "nav_about": "Sobre",
+  "nav_create": "Criar pacotes",
   "nav_guide": "Guia",
   "nav_recover": "Recuperar",
   "mode_simple": "Simples",

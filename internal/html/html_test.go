@@ -16,7 +16,7 @@ func staticPages() map[string]string {
 	return map[string]string{
 		"maker.html":   GenerateMakerHTML(wasmStub, MakerHTMLOptions{}),
 		"recover.html": GenerateRecoverHTML(nil),
-		"index.html":   GenerateIndexHTML(),
+		"about.html":   GenerateIndexHTML(false),
 		"docs.html":    GenerateDocsHTML("en"),
 	}
 }
@@ -32,7 +32,7 @@ func TestStaticHTMLHasNoServerCode(t *testing.T) {
 	forbidden := []string{
 		"/api/bundle",
 		"/api/setup",
-		"Saved to server",
+		"maxManifestSize",
 	}
 
 	for name, content := range staticPages() {
@@ -55,7 +55,7 @@ func TestSelfhostedHTMLHasServerCode(t *testing.T) {
 
 	required := []string{
 		"/api/bundle",
-		"Saved to server",
+		"maxManifestSize",
 	}
 
 	for _, pattern := range required {
@@ -82,11 +82,11 @@ func TestStaticHostedRecoverHTML(t *testing.T) {
 		t.Error("static-hosted recover.html contains /api/bundle")
 	}
 
-	// Nav links should NOT be rewritten (no server routes)
+	// Nav links should use filenames, not server routes
 	if strings.Contains(content, `href="/create"`) {
 		t.Error("static-hosted recover.html has server nav rewrites")
 	}
-	if !strings.Contains(content, `href="index.html"`) {
+	if !strings.Contains(content, `href="about.html"`) {
 		t.Error("static-hosted recover.html missing standard nav links")
 	}
 }

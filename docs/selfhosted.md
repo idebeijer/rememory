@@ -88,7 +88,6 @@ rememory serve
 | `--host` | `REMEMORY_HOST` | `127.0.0.1` | Host to bind to |
 | `--data, -d` | `REMEMORY_DATA` | `./rememory-data` | Data directory for bundles and config |
 | `--max-manifest-size` | `REMEMORY_MAX_MANIFEST_SIZE` | `50MB` | Maximum MANIFEST.age size (e.g. `50MB`, `1GB`) |
-| `--no-timelock` | | false | Omit time-lock support |
 
 Flags take precedence over environment variables.
 

@@ -664,11 +664,11 @@ func TestPagesGeneration(t *testing.T) {
 		t.Error("pages recover.html contains /api/bundle server URLs")
 	}
 
-	// Assert: nav links are NOT rewritten (still href="index.html")
+	// Assert: nav links use filenames, not server routes
 	if strings.Contains(recoverContent, `href="/create"`) {
 		t.Error("pages recover.html has server nav rewrites")
 	}
-	if !strings.Contains(recoverContent, `href="index.html"`) {
+	if !strings.Contains(recoverContent, `href="about.html"`) {
 		t.Error("pages recover.html missing standard nav links")
 	}
 }

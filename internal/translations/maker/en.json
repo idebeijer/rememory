@@ -63,6 +63,7 @@
   "remove": "Remove",
   "threshold_guidance": "Think about who might be reachable at the same time. A lower number is more forgiving if someone is unavailable.",
   "nav_about": "About",
+  "nav_create": "Create Bundles",
   "nav_guide": "Guide",
   "nav_recover": "Recover",
   "mode_simple": "Simple",
@@ -98,5 +99,9 @@
   "how_security_local": "Everything runs in your browser — nothing leaves your device",
   "how_security_offline": "This page works offline — save it with File \u203a Save As",
   "how_security_encryption": "Protected with age encryption",
-  "how_security_opensource": "Open source (Apache-2.0)"
+  "how_security_opensource": "Open source (Apache-2.0)",
+
+  "saved_to_server": "Saved to server.",
+  "save_to_server_error": "Could not save to server: {0}",
+  "go_to_home": "Go to home page"
 }

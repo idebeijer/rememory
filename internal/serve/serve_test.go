@@ -255,6 +255,26 @@ func TestPathTraversalPrevention(t *testing.T) {
 	}
 }
 
+func TestDeletePathTraversal(t *testing.T) {
+	srv := newTestServer(t)
+	setupPassword(t, srv, "deletetraversal")
+
+	for _, malicious := range []string{
+		"../../etc/passwd",
+		"../admin.age",
+		"not-a-uuid",
+	} {
+		body := `{"id":"` + malicious + `","password":"deletetraversal"}`
+		req := httptest.NewRequest("DELETE", "/api/bundle", strings.NewReader(body))
+		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
+		srv.ServeHTTP(w, req)
+		if w.Code != http.StatusBadRequest {
+			t.Errorf("expected 400 for malicious delete id %q, got %d", malicious, w.Code)
+		}
+	}
+}
+
 func TestManifestPathTraversal(t *testing.T) {
 	srv := newTestServer(t)
 	setupPassword(t, srv, "traversalpass")
@@ -354,8 +374,8 @@ func TestRootPage(t *testing.T) {
 		t.Errorf("expected 200 for home page with bundle, got %d", w.Code)
 	}
 	body = w.Body.String()
-	if !strings.Contains(body, "my-bundle") {
-		t.Error("expected bundle name in home page")
+	if !strings.Contains(body, `"total":3`) {
+		t.Error("expected bundle metadata in home page after upload")
 	}
 }
 

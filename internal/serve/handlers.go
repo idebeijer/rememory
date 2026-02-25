@@ -17,13 +17,19 @@ func (s *Server) handleRoot(w http.ResponseWriter, r *http.Request) {
 		s.handleSetupPage(w, r)
 		return
 	}
+	bundles, _ := s.store.List()
+	if bundles == nil {
+		bundles = []BundleMeta{}
+	}
+	bundlesJSON := html.HomeBundlesJSON(bundles)
+
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	fmt.Fprint(w, s.generateHomeHTML())
+	fmt.Fprint(w, html.GenerateHomeHTML(bundlesJSON))
 }
 
 func (s *Server) handleSetupPage(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	fmt.Fprint(w, s.generateSetupHTML())
+	fmt.Fprint(w, html.GenerateSetupHTML())
 }
 
 func (s *Server) handleCreate(w http.ResponseWriter, r *http.Request) {
@@ -67,7 +73,6 @@ func (s *Server) handleRecover(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	content := html.GenerateRecoverHTML(nil, html.RecoverHTMLOptions{
-		NoTlock:    s.noTlock,
 		Selfhosted: true,
 		SelfhostedConfig: &html.SelfhostedConfig{
 			MaxManifestSize: s.maxManifestSize,
@@ -80,14 +85,15 @@ func (s *Server) handleRecover(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) handleAbout(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	content := html.GenerateIndexHTML()
+	content := html.GenerateIndexHTML(true)
 	fmt.Fprint(w, content)
 }
 
-func (s *Server) handleDocs(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	content := html.GenerateDocsHTML("en")
-	fmt.Fprint(w, content)
+func (s *Server) docsHandler(lang string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		fmt.Fprint(w, html.GenerateDocsHTML(lang))
+	}
 }
 
 // API handlers
@@ -212,6 +218,11 @@ func (s *Server) handleAPIDeleteBundle(w http.ResponseWriter, r *http.Request) {
 
 	if body.ID == "" {
 		http.Error(w, "Missing bundle ID.", http.StatusBadRequest)
+		return
+	}
+
+	if !isValidUUID(body.ID) {
+		http.Error(w, "Invalid bundle ID.", http.StatusBadRequest)
 		return
 	}
 
