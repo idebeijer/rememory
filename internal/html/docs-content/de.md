@@ -14,13 +14,11 @@ footer_home: "Startseite"
 
 ## Überblick {#overview}
 
-ReMemory schützt deine Dateien, indem es:
+ReMemory ist ein digitaler Tresor mit mehreren Schlüsseln. Du entscheidest, wer sie hält und wie viele zusammenkommen müssen, um ihn zu öffnen.
 
-1. Sie mit [age](https://github.com/FiloSottile/age) verschlüsselt
-1. Den Schlüssel unter Vertrauenspersonen aufteilt
-1. Jeder Person ein eigenständiges Paket zur Wiederherstellung gibt
+Unter der Haube verschlüsselt es deine Dateien mit [age](https://github.com/FiloSottile/age), teilt den Schlüssel unter Vertrauenspersonen auf und gibt jeder Person ein eigenständiges Paket zur Wiederherstellung.
 
-Die Wiederherstellung funktioniert komplett offline, im Browser.\* Keine Server, die Website muss dafür nicht existieren.
+Wiederherstellung heißt: eine Datei im Browser öffnen.\* Keine Server, die Website muss dafür nicht existieren.
 
 <p style="font-size: 0.8125rem; color: #8A8480;">* Archive mit <a href="#timelock" style="color: #8A8480;">Zeitsperre</a> brauchen bei der Wiederherstellung eine kurze Internetverbindung.</p>
 

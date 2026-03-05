@@ -14,13 +14,11 @@ footer_home: "Accueil"
 
 ## Présentation {#overview}
 
-ReMemory protège vos fichiers en :
+ReMemory est un coffre-fort numérique à plusieurs clés. Vous choisissez qui les détient et combien doivent se réunir pour l'ouvrir.
 
-1. Les chiffrant avec [age](https://github.com/FiloSottile/age)
-1. Répartissant la clé entre des personnes de confiance
-1. Donnant à chacune une enveloppe autonome pour la récupération
+Sous le capot, il chiffre vos fichiers avec [age](https://github.com/FiloSottile/age), répartit la clé entre des personnes de confiance et donne à chacune une enveloppe autonome pour la récupération.
 
-La récupération fonctionne entièrement hors ligne, dans un navigateur.\* Pas de serveur, pas besoin que ce site existe.
+Récupérer, c'est ouvrir un fichier dans un navigateur.\* Pas de serveur, pas besoin que ce site existe.
 
 <p style="font-size: 0.8125rem; color: #8A8480;">* Les archives avec <a href="#timelock" style="color: #8A8480;">verrouillage temporel</a> nécessitent une brève connexion internet au moment de la récupération.</p>
 

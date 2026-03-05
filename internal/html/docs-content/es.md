@@ -14,13 +14,11 @@ footer_home: "Inicio"
 
 ## Descripción general {#overview}
 
-ReMemory protege tus archivos de la siguiente manera:
+ReMemory es una caja fuerte digital con varias llaves. Tú eliges quién las guarda y cuántas personas deben juntarse para abrirla.
 
-1. Los cifra con [age](https://github.com/FiloSottile/age)
-1. Divide la clave entre personas de tu confianza
-1. Entrega a cada persona un kit autónomo para la recuperación
+Por dentro, cifra tus archivos con [age](https://github.com/FiloSottile/age), divide la clave entre personas de tu confianza y entrega a cada persona un kit autónomo para la recuperación.
 
-La recuperación funciona completamente sin conexión, en un navegador.\* Sin servidores, sin necesidad de que este sitio web exista.
+Recuperar es abrir un archivo en el navegador.\* Sin servidores, sin necesidad de que este sitio web exista.
 
 <p style="font-size: 0.8125rem; color: #8A8480;">* Los archivos con <a href="#timelock" style="color: #8A8480;">bloqueo por fecha</a> necesitan una breve conexión a internet al momento de la recuperación.</p>
 
