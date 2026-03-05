@@ -1,8 +1,8 @@
 # 🧠 ReMemory
 
-**Encrypt your files and split the key among people you trust.**
+**A digital safe with multiple keys, held by people you trust.**
 
-ReMemory splits a decryption key using Shamir's Secret Sharing and gives each person a self-contained tool to recover the files together — offline, in any browser.*
+ReMemory protects your files and divides the key among people you choose. You decide how many must come together to open it. Each person gets a self-contained recovery tool that works offline, in any browser.*
 
 <sub>* [Time-locked](#time-delayed-recovery-experimental) archives need a brief internet connection at recovery time.</sub>
 

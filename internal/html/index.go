@@ -14,20 +14,20 @@ func GenerateIndexHTML(selfhosted bool) string {
 	content = strings.Replace(content, "{{LANG_OPTIONS}}", translations.LangSelectOptions(), 1)
 
 	result := applyLayout(LayoutOptions{
-		Title:      "ReMemory - Protect what matters with people you trust",
+		Title:      "ReMemory - A digital safe with multiple keys",
 		BodyClass:  "landing",
 		Selfhosted: selfhosted,
 		HeadMeta: `<meta name="generator" content="ReMemory {{VERSION}}">
-  <meta name="description" content="Protect your files by splitting a key among people you trust. No accounts, no servers. Recovery works offline, forever.">
+  <meta name="description" content="A digital safe with multiple keys, held by people you trust. No accounts, no servers. Recovery works offline.">
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
-  <meta property="og:title" content="ReMemory - Protect what matters with people you trust">
-  <meta property="og:description" content="Protect your files by splitting a key among people you trust. No accounts, no servers. Recovery works offline, forever.">
+  <meta property="og:title" content="ReMemory - A digital safe with multiple keys">
+  <meta property="og:description" content="A digital safe with multiple keys, held by people you trust. No accounts, no servers. Recovery works offline.">
   <meta property="og:image" content="{{GITHUB_PAGES}}/screenshots/recovery-1.png">
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="ReMemory - Protect what matters with people you trust">
-  <meta name="twitter:description" content="Protect your files by splitting a key among people you trust. No accounts, no servers. Recovery works offline, forever.">
+  <meta name="twitter:title" content="ReMemory - A digital safe with multiple keys">
+  <meta name="twitter:description" content="A digital safe with multiple keys, held by people you trust. No accounts, no servers. Recovery works offline.">
   <meta name="twitter:image" content="{{GITHUB_PAGES}}/screenshots/recovery-1.png">`,
 		PageStyles: indexCSS,
 		Content:    content,

@@ -14,9 +14,9 @@ var buildDate = ""
 
 var rootCmd = &cobra.Command{
 	Use:   "rememory",
-	Short: "🧠 Encrypt secrets and split access among trusted friends",
-	Long: `🧠 ReMemory encrypts a manifest of secrets with age, splits the passphrase
-using Shamir's Secret Sharing, and creates recovery bundles for trusted friends.
+	Short: "🧠 A digital safe with multiple keys, held by people you trust",
+	Long: `🧠 ReMemory is a digital safe with multiple keys. It encrypts your files with age,
+splits the key using Shamir's Secret Sharing, and creates recovery bundles for each person.
 
 Create a project:    rememory init my-recovery
 Seal the manifest:   rememory seal

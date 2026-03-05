@@ -92,7 +92,7 @@ jobs:
           SHA_LINUX_AMD64=$(grep 'rememory-linux-amd64$' dist/checksums.txt | awk '{print $1}')
           cat > dist/rememory.rb << FORMULA
           class Rememory < Formula
-            desc "Encrypt secrets and split them among people you trust"
+            desc "A digital safe with multiple keys, held by people you trust"
             homepage "https://github.com/eljojo/rememory"
             version "${VERSION_NUM}"
             license "Apache-2.0"

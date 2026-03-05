@@ -14,13 +14,11 @@ footer_home: "Home"
 
 ## Overview {#overview}
 
-ReMemory protects files by:
+ReMemory is a digital safe with multiple keys. You choose who holds them and how many must come together to open it.
 
-1. Encrypting them with [age](https://github.com/FiloSottile/age)
-1. Splitting the key among people you trust
-1. Giving each person a self-contained bundle for recovery
+Under the hood, it encrypts your files with [age](https://github.com/FiloSottile/age), splits the key among people you trust, and gives each person a self-contained bundle for recovery.
 
-Recovery works entirely offline, in a browser.\* No servers, no need for this website to exist.
+Recovery is opening a file in a browser.\* No servers, no need for this website to exist.
 
 <p style="font-size: 0.8125rem; color: #8A8480;">* <a href="#timelock" style="color: #8A8480;">Time-locked</a> archives need a brief internet connection at recovery time.</p>
 

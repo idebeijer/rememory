@@ -1,5 +1,5 @@
 {
-  description = "ReMemory - encrypt secrets and split access among trusted friends";
+  description = "ReMemory - a digital safe with multiple keys, held by people you trust";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";

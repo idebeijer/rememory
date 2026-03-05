@@ -26,13 +26,15 @@ This guide walks you through using ReMemory to create encrypted recovery bundles
 
 ## Overview
 
-ReMemory helps you:
+ReMemory is a digital safe with multiple keys. It protects your files and divides the key among people you trust. You choose how many must come together to open it.
 
-1. Encrypt sensitive files with strong cryptography
-2. Split the decryption key among trusted friends using Shamir's Secret Sharing
-3. Create self-contained bundles that friends can use to recover your secrets
+Under the hood:
 
-The key innovation is that recovery works **entirely offline in a browser**—no servers, no need for ReMemory to exist when recovery happens.*
+1. Files are encrypted with [age](https://github.com/FiloSottile/age) (strong, modern cryptography)
+2. The key is split using [Shamir's Secret Sharing](https://en.wikipedia.org/wiki/Shamir%27s_secret_sharing)
+3. Each person gets a self-contained bundle for recovery
+
+Recovery works **entirely offline in a browser** — no servers, no need for ReMemory to exist when recovery happens.*
 
 <sub>* [Time-locked](https://eljojo.github.io/rememory/docs#timelock) archives need a brief internet connection at recovery time.</sub>
 
