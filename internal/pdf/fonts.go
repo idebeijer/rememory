@@ -28,14 +28,8 @@ var dejaVuSansMonoRegular []byte
 //go:embed fonts/DejaVuSansMono-Bold.ttf
 var dejaVuSansMonoBold []byte
 
-// Noto Sans SC font files (SIL Open Font License - see fonts/LICENSE-NotoSansSC.txt)
-// These provide CJK (Chinese, Japanese, Korean) glyph coverage.
-
-//go:embed fonts/NotoSansSC-Regular.ttf
-var notoSansSCRegular []byte
-
-//go:embed fonts/NotoSansSC-Bold.ttf
-var notoSansSCBold []byte
+// notoSansSCRegular and notoSansSCBold are set by fonts_cjk.go when the
+// CJK fonts are compiled in (all non-WASM builds, and WASM built with -tags cjk).
 
 // Font family names used throughout the PDF generator.
 const (
@@ -53,11 +47,12 @@ func isCJKLanguage(lang string) bool {
 }
 
 // registerUTF8Fonts adds the embedded UTF-8 fonts to the PDF instance.
-// When lang is a CJK language, Noto Sans SC is registered under fontSans
-// so that Chinese/Japanese/Korean text renders correctly.
+// When lang is a CJK language and Noto Sans SC is compiled in, it is
+// registered under fontSans so that Chinese/Japanese/Korean text renders
+// correctly. Otherwise DejaVu Sans is used (CJK characters show as boxes).
 // After calling this, use fontSans and fontMono as the family name in SetFont().
 func registerUTF8Fonts(pdf *fpdf.Fpdf, lang string) {
-	if isCJKLanguage(lang) {
+	if isCJKLanguage(lang) && notoSansSCRegular != nil {
 		pdf.AddUTF8FontFromBytes(fontSans, "", notoSansSCRegular)
 		pdf.AddUTF8FontFromBytes(fontSans, "B", notoSansSCBold)
 		pdf.AddUTF8FontFromBytes(fontSans, "I", notoSansSCRegular)
