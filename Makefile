@@ -23,6 +23,7 @@ build: wasm
 # using the offline drand client (zero HTTP calls).
 # tlock-recover.ts is imported by app.ts behind __TLOCK__ guards.
 ts:
+	@if [ ! -d node_modules ]; then echo "Run 'npm install' first"; exit 1; fi
 	@echo "Compiling TypeScript..."
 	esbuild internal/html/assets/src/shared.ts --bundle --format=iife --global-name=_shared --outfile=internal/html/assets/shared.js --target=es2020
 	esbuild internal/html/assets/src/app.ts --bundle --format=iife --define:__TLOCK__=false --minify-syntax --outfile=internal/html/assets/app.js --target=es2020 --loader:.txt=text --conditions=zbar-inlined

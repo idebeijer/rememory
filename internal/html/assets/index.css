@@ -240,14 +240,15 @@
       font-size: 0.85rem;
     }
 
-    /* Trust section */
-    .trust {
+    /* Muted card — used for contextual/background sections */
+    .card-muted {
       background: var(--sand);
       border-radius: 8px;
       padding: 1.5rem 2rem;
       margin-bottom: 1.5rem;
     }
 
+    /* Trust section */
     .trust h2 {
       font-size: 1.1rem;
       color: var(--text);
@@ -303,13 +304,6 @@
     }
 
 /* Background note */
-    .background {
-      background: var(--paper-light);
-      border-radius: 8px;
-      padding: 1.5rem 2rem;
-      box-shadow: 0 2px 4px rgba(46,42,38,0.08);
-      margin-bottom: 1.5rem;
-    }
 
     .background h2 {
       font-size: 1.1rem;

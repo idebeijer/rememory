@@ -234,6 +234,9 @@ This uses the [League of Entropy](https://www.cloudflare.com/en-ca/leagueofentro
 # Using Nix (recommended)
 nix develop
 
+# Install dependencies
+npm install
+
 # Build
 make build
 
