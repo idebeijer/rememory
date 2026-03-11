@@ -4,6 +4,8 @@ All notable changes to ReMemory are documented here.
 
 ## Unreleased
 
+## v0.0.17 — 2026-03-11
+
 - **Dutch language support** — Added Dutch as a supported language for the recovery tool, maker, and bundle instructions. Thanks @idebeijer!
 - **Catalan language support** — Added Catalan translations and wordlist support. Uses the Spanish BIP39 wordlist as a fallback for Catalan bundles. Thanks @xcxtxsx!
 - **Chinese text in PDFs** — PDFs now render Chinese characters correctly by bundling the Noto Sans SC font. Previously, Chinese text could appear as blank boxes. Thanks @gabrnavarro!
