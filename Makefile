@@ -1,9 +1,13 @@
-.PHONY: build test test-tlock test-e2e test-e2e-headed lint clean install wasm wasm-cjk build-cjk ts build-all bump man html serve demo demo-tlock generate-fixtures full update-pdf-png screenshots release check-translations
+.PHONY: build test test-tlock test-e2e test-e2e-headed lint clean install wasm wasm-cjk build-cjk ts build-all bump man html serve demo demo-tlock generate-fixtures full update-pdf-png screenshots release check-translations docker-build docker-build-multiarch
 
 BINARY := rememory
 VERSION := $(shell cat VERSION 2>/dev/null || echo "dev")
 BUILD_DATE := $(shell date -u +%Y-%m-%d)
 LDFLAGS := -ldflags "-s -w -X main.version=$(VERSION) -X main.buildDate=$(BUILD_DATE)"
+DOCKER_IMAGE ?= rememory
+DOCKER_TAG ?= latest
+HOST_ARCH := $(shell uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')
+CONTAINER_TOOL ?= docker
 
 # Build WASM module first, then the main binary
 build: wasm
@@ -205,3 +209,16 @@ update-pdf-png: build
 screenshots: build
 	@if [ ! -d node_modules ]; then echo "Run 'npm install' first"; exit 1; fi
 	REMEMORY_BIN=./$(BINARY) REMEMORY_TEST_SCREENSHOTS=1 npx playwright test --project=chromium
+
+# Build a single-arch Docker image for the current host platform and load it into Docker
+docker-build: build-all
+	$(CONTAINER_TOOL) buildx build \
+		--platform linux/$(HOST_ARCH) \
+		--load \
+		-t $(DOCKER_IMAGE):$(DOCKER_TAG) .
+
+# Build a multi-arch Docker image (linux/amd64 + linux/arm64) — does not load into Docker
+docker-build-multiarch: build-all
+	$(CONTAINER_TOOL) buildx build \
+		--platform linux/amd64,linux/arm64 \
+		-t $(DOCKER_IMAGE):$(DOCKER_TAG) .

@@ -1,0 +1,4 @@
+# Everything except the pre-built Linux binaries needed by the Dockerfile
+*
+!dist/rememory-linux-amd64
+!dist/rememory-linux-arm64
