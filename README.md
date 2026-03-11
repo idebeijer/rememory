@@ -317,5 +317,6 @@ Translations by:
 - Português — [@Kasama](https://github.com/Kasama)
 - 中文（台灣）— [@JasonHK](https://github.com/JasonHK)
 - Catalan — [@xcxtxsx](https://github.com/xcxtxsx)
+- Dutch — [@idebeijer](https://github.com/idebeijer)
 
 The protocol was [originally designed in a Google Doc](https://docs.google.com/document/d/1B4_wIN3fXqb67Tln0v5v2pMRFf8v5umkKikaqCRAdyM/edit?usp=sharing) in 2023.

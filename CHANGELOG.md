@@ -4,8 +4,12 @@ All notable changes to ReMemory are documented here.
 
 ## Unreleased
 
+- **Dutch language support** — Added Dutch as a supported language for the recovery tool, maker, and bundle instructions. Thanks @idebeijer!
+- **Catalan language support** — Added Catalan translations and wordlist support. Uses the Spanish BIP39 wordlist as a fallback for Catalan bundles. Thanks @xcxtxsx!
+- **Chinese text in PDFs** — PDFs now render Chinese characters correctly by bundling the Noto Sans SC font. Previously, Chinese text could appear as blank boxes. Thanks @gabrnavarro!
 - **Update nudge** — The CLI and web maker now gently let you know if you're running a version built more than six months ago, with a link to check for updates. No network calls — it just compares the build date to your clock.
 - **Mismatched piece detection** — Adding a piece from a different set now shows a clear error right away, instead of failing later with a generic decryption message.
+- **Rewritten documentation** — The guides and landing page have been rewritten to focus on what people actually need to do, in all supported languages.
 
 ## v0.0.16 — 2026-02-25
 
